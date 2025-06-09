@@ -1,0 +1,44 @@
+import { NextResponse } from 'next/server';
+import pool from '@/lib/db';
+
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const [rows]: any = await pool.query(
+      `SELECT 
+        sa.allocated_at, 
+        c.course_name,
+        c.course_code 
+      FROM seat_allocations sa
+      JOIN courses c ON sa.allocated_course_id = c.id
+      WHERE sa.candidate_id = ?`,
+      [params.id]
+    );
+
+    if (rows.length === 0) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'No allocation found for this candidate' 
+        },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      allocation: rows[0]
+    });
+
+  } catch (error: any) {
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: error.message || 'Failed to fetch allocation result' 
+      },
+      { status: 500 }
+    );
+  }
+}
