@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation'; // Added import
 
 type CandidateProfile = {
   id: number;
@@ -19,14 +20,16 @@ type AllocationResult = {
   allocated_at: string;
 } | null;
 
-export default function CandidateDashboard({ params }: { params: { id: string } }) {
+export default function CandidateDashboard() { // Removed params prop
+  const params = useParams();
+  const id = params?.id as string; // Get ID from useParams
+
   const [profile, setProfile] = useState<CandidateProfile | null>(null);
   const [allocation, setAllocation] = useState<AllocationResult>(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Form state
   const [form, setForm] = useState({
     full_name: '',
     father_name: '',
@@ -42,23 +45,19 @@ export default function CandidateDashboard({ params }: { params: { id: string } 
     preference3: ''
   });
 
-  // Fetch candidate data and allocation result
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch profile
-        const profileRes = await fetch(`/api/candidate/${params.id}`);
+        const profileRes = await fetch(`/api/candidate/${id}`);
         const profileData = await profileRes.json();
         
         if (!profileData.success) throw new Error(profileData.error);
         setProfile(profileData.profile);
 
-        // Fetch allocation result
-        const resultRes = await fetch(`/api/candidate/${params.id}/result`);
+        const resultRes = await fetch(`/api/candidate/${id}/result`);
         const resultData = await resultRes.json();
         if (resultData.success) setAllocation(resultData.allocation);
 
-        // Initialize form with profile data
         if (profileData.profile) {
           setForm({
             ...form,
@@ -72,8 +71,8 @@ export default function CandidateDashboard({ params }: { params: { id: string } 
       }
     };
 
-    fetchData();
-  }, [params.id]);
+    if (id) fetchData(); // Added null check for id
+  }, [id]); // Changed dependency to id
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -87,7 +86,7 @@ export default function CandidateDashboard({ params }: { params: { id: string } 
     try {
       const res = await fetch('/api/candidate/update', {
         method: 'POST',
-        body: JSON.stringify({ userId: params.id, ...form }),
+        body: JSON.stringify({ userId: id, ...form }), // Changed params.id to id
         headers: { 'Content-Type': 'application/json' }
       });
       const data = await res.json();
@@ -106,9 +105,7 @@ export default function CandidateDashboard({ params }: { params: { id: string } 
     <div className="max-w-2xl mx-auto mt-8 p-6 bg-white shadow rounded">
       <h2 className="text-xl font-bold mb-4">Candidate Profile & Branch Preferences</h2>
       
-      {/* Profile Update Form */}
       <form onSubmit={handleSubmit} className="space-y-3">
-        {/* Personal Details */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium mb-1">Full Name</label>
@@ -132,7 +129,6 @@ export default function CandidateDashboard({ params }: { params: { id: string } 
           </div>
         </div>
 
-        {/* Contact Information */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium mb-1">Phone Number</label>
@@ -156,7 +152,6 @@ export default function CandidateDashboard({ params }: { params: { id: string } 
           </div>
         </div>
 
-        {/* Academic Details */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium mb-1">10th Percentage</label>
@@ -180,7 +175,6 @@ export default function CandidateDashboard({ params }: { params: { id: string } 
           </div>
         </div>
 
-        {/* State and Category */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium mb-1">State</label>
@@ -210,7 +204,6 @@ export default function CandidateDashboard({ params }: { params: { id: string } 
           </div>
         </div>
 
-        {/* Exam Rank */}
         <div>
           <label className="block text-sm font-medium mb-1">Exam Rank</label>
           <input
@@ -222,7 +215,6 @@ export default function CandidateDashboard({ params }: { params: { id: string } 
           />
         </div>
 
-        {/* Branch Preferences */}
         <div className="space-y-4">
           <h3 className="font-semibold mt-4">Branch Preferences</h3>
           

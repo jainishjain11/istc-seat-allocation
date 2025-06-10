@@ -12,8 +12,9 @@ export async function GET(
         c.course_name,
         c.course_code 
       FROM seat_allocations sa
+      JOIN candidates cand ON sa.candidate_id = cand.id
       JOIN courses c ON sa.allocated_course_id = c.id
-      WHERE sa.candidate_id = ?`,
+      WHERE cand.user_id = ?`,
       [params.id]
     );
 
