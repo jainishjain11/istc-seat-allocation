@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import styles from './admin.module.css'; // Import CSS module
 
 type Candidate = {
   id: number;
@@ -111,13 +112,13 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto mt-8 p-6 bg-white shadow rounded">
-      <h2 className="text-xl font-bold mb-4">Admin Dashboard</h2>
+    <div className={styles.adminContainer}>
+      <h1 className={styles.sectionTitle}>Admin Dashboard</h1>
       
       {/* Action Buttons */}
-      <div className="flex flex-wrap gap-4 mb-4">
+      <div className={styles.actionBar}>
         <button
-          className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
+          className={styles.actionButton}
           onClick={handleAllocate}
           disabled={allocating}
         >
@@ -125,32 +126,33 @@ export default function AdminDashboard() {
         </button>
         
         <button
-          className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
+          className={styles.actionButton}
           onClick={handlePublish}
           disabled={published}
         >
           {published ? 'Results Published' : 'Publish Results'}
         </button>
-        <button
-  className="bg-red-600 text-white px-4 py-2 rounded"
-  onClick={async () => {
-    await fetch('/api/admin/unpublish', { method: 'POST' });
-    setPublished(false);
-  }}
-  disabled={!published}
->
-  Unpublish Results
-</button>
 
         <button
-          className="bg-purple-600 text-white px-4 py-2 rounded"
+          className={styles.actionButton}
+          onClick={async () => {
+            await fetch('/api/admin/unpublish', { method: 'POST' });
+            setPublished(false);
+          }}
+          disabled={!published}
+        >
+          Unpublish Results
+        </button>
+
+        <button
+          className={styles.actionButton}
           onClick={handleExportCandidates}
         >
           Export Candidates
         </button>
 
         <button
-          className="bg-purple-600 text-white px-4 py-2 rounded"
+          className={styles.actionButton}
           onClick={handleExportCourses}
         >
           Export Courses
@@ -159,76 +161,72 @@ export default function AdminDashboard() {
 
       {/* Status Messages */}
       {allocationResult && (
-        <div className={`mb-4 p-3 rounded ${allocationResult.success ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+        <div className={allocationResult.success ? styles.statusSuccess : styles.statusError}>
           {allocationResult.success ? "Seat allocation completed!" : allocationResult.error}
         </div>
       )}
 
-      {/* Category Filter */}
-      <div className="mb-4">
-        <label className="mr-2">Filter by Category:</label>
-        <select
-          className="border p-2 rounded"
-          value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value)}
-        >
-          <option value="all">All Categories</option>
-          <option value="General">General</option>
-          <option value="SC">SC</option>
-          <option value="ST">ST</option>
-          <option value="OBC">OBC</option>
-        </select>
-      </div>
+  
 
       {/* Seat Matrix */}
-      <div className="mb-8">
-        <h3 className="font-semibold mb-2">Seat Matrix</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className={styles.dataCard}>
+        <h2 className={styles.sectionTitle}>Seat Matrix</h2>
+        <div className={styles.gridContainer}>
           {courses.map((course) => (
-            <div key={course.id} className="p-4 bg-gray-50 rounded">
-              <h4 className="font-medium">{course.course_name}</h4>
-              <p>Total: {course.total_seats}</p>
-              <p>Available: {course.available_seats}</p>
+            <div key={course.id} className={styles.courseCard}>
+              <h4 className={styles.courseTitle}>{course.course_name}</h4>
+              <div className={styles.seatInfo}>
+                <span>Total: {course.total_seats}</span>
+                <span>Available: {course.available_seats}</span>
+              </div>
             </div>
           ))}
         </div>
       </div>
+      {/* Category Filter - Fix the dropdown */}
+<div className={styles.dataCard}>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+    <label className={styles.formLabel}>Filter by Category:</label>
+    <select
+      className={styles.formSelect}
+      value={categoryFilter}
+      onChange={(e) => setCategoryFilter(e.target.value)}
+      style={{ minWidth: '200px' }} // Ensure adequate width
+    >
+      <option value="all">All Categories</option>
+      <option value="General">General</option>
+      <option value="SC">SC</option>
+      <option value="ST">ST</option>
+      <option value="OBC">OBC</option>
+    </select>
+  </div>
+</div>
 
       {/* Candidates Table */}
-      <h3 className="font-semibold mb-2">Candidates</h3>
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
+      <div className={styles.dataCard}>
+        <h2 className={styles.sectionTitle}>Candidates</h2>
+        <table className={styles.table}>
           <thead>
-            <tr className="bg-gray-50">
-              <th 
-                className="p-3 text-left cursor-pointer hover:bg-gray-100"
-                onClick={() => handleSort('full_name')}
-              >
-                Name {sortConfig?.key === 'full_name' && (
-                  sortConfig.direction === 'asc' ? '↑' : '↓'
-                )}
+            <tr>
+              <th onClick={() => handleSort('full_name')}>
+                Name {sortConfig?.key === 'full_name' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
               </th>
-              <th 
-                className="p-3 text-left cursor-pointer hover:bg-gray-100"
-                onClick={() => handleSort('exam_rank')}
-              >
-                Rank {sortConfig?.key === 'exam_rank' && (
-                  sortConfig.direction === 'asc' ? '↑' : '↓'
-                )}
+              <th onClick={() => handleSort('exam_rank')}>
+                Rank {sortConfig?.key === 'exam_rank' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
               </th>
-              <th className="p-3 text-left">Preferences</th>
-              <th className="p-3 text-left">Category</th>
-              <th className="p-3 text-left">Allocated Course</th>
+              <th>Preferences</th>
+              <th>Category</th>
+              <th>Allocated Course</th>
             </tr>
           </thead>
           <tbody>
             {filteredCandidates.map((candidate) => (
-              <tr key={candidate.id} className="border-t hover:bg-gray-50">
-                <td className="p-3">{candidate.full_name}</td>
-                <td className="p-3">{candidate.exam_rank}</td>
-                <td className="p-3">{candidate.preferences}</td>
-                <td className="p-3">{candidate.category}</td>
-                <td className="p-3">{candidate.allocated_course || 'Not allocated'}</td>
+              <tr key={candidate.id}>
+                <td>{candidate.full_name}</td>
+                <td>{candidate.exam_rank}</td>
+                <td>{candidate.preferences}</td>
+                <td>{candidate.category}</td>
+                <td>{candidate.allocated_course || 'Not allocated'}</td>
               </tr>
             ))}
           </tbody>
