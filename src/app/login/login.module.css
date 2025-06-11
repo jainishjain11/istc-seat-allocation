@@ -70,3 +70,11 @@
 .submit:hover {
   background-color: #3730a3;
 }
+.error {
+  color: #dc2626;
+  background-color: #fee2e2;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
