@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import styles from './candidate.module.css'; // <-- Import your new CSS module
 
 type CandidateProfile = {
   id: number;
@@ -27,7 +28,7 @@ export default function CandidateDashboard() {
   const [profile, setProfile] = useState<CandidateProfile | null>(null);
   const [allocation, setAllocation] = useState<AllocationResult>(null);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [success, set209Success] = useState('');
   const [loading, setLoading] = useState(true);
 
   const [form, setForm] = useState({
@@ -51,28 +52,19 @@ export default function CandidateDashboard() {
         if (!id) {
           throw new Error('No candidate ID provided');
         }
-
-        // Fetch profile with better error handling
+        // Fetch profile
         const profileRes = await fetch(`/api/candidate/${id}`);
-        if (!profileRes.ok) {
-          throw new Error(`Failed to fetch profile: ${profileRes.status}`);
-        }
+        if (!profileRes.ok) throw new Error(`Failed to fetch profile: ${profileRes.status}`);
         const profileData = await profileRes.json();
-        
-        if (!profileData.success) {
-          throw new Error(profileData.error);
-        }
+        if (!profileData.success) throw new Error(profileData.error);
         setProfile(profileData.profile);
 
-        // Fetch allocation result with better error handling
+        // Fetch allocation result
         const resultRes = await fetch(`/api/candidate/${id}/result`);
         if (resultRes.ok) {
           const resultData = await resultRes.json();
-          if (resultData.success) {
-            setAllocation(resultData.allocation);
-          }
+          if (resultData.success) setAllocation(resultData.allocation);
         }
-        // Don't throw error if no allocation found - this is normal
 
         // Initialize form with profile data
         if (profileData.profile) {
@@ -109,8 +101,7 @@ export default function CandidateDashboard() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setSuccess('');
-    
+    set209Success('');
     try {
       const res = await fetch('/api/candidate/update', {
         method: 'POST',
@@ -118,110 +109,107 @@ export default function CandidateDashboard() {
         headers: { 'Content-Type': 'application/json' }
       });
       const data = await res.json();
-      
       if (!data.success) throw new Error(data.error);
-      setSuccess('Profile updated successfully!');
+      set209Success('Profile updated successfully!');
     } catch (err: any) {
       setError(err.message || 'Failed to update profile');
     }
   };
 
-  if (loading) return <div className="text-center mt-8">Loading candidate profile...</div>;
-  if (error) return <div className="text-red-600 text-center mt-8">{error}</div>;
+  if (loading) return <div className={styles.loadingText}>Loading candidate profile...</div>;
+  if (error) return <div className={styles.errorMessage}>{error}</div>;
 
   return (
-    <div className="max-w-2xl mx-auto mt-8 p-6 bg-white shadow rounded">
-      <h2 className="text-xl font-bold mb-4">Candidate Profile & Branch Preferences</h2>
-      
-      <form onSubmit={handleSubmit} className="space-y-3">
-        {/* Your existing form JSX remains the same */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Full Name</label>
+    <div className={styles.dashboardContainer}>
+      <h1 className={styles.pageTitle}>Candidate Profile & Branch Preferences</h1>
+      <form onSubmit={handleSubmit} className={styles.form}>
+        <div className={styles.formSection}>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Full Name</label>
             <input
               name="full_name"
               value={form.full_name}
               onChange={handleChange}
-              className="w-full border px-3 py-2 rounded"
+              className={styles.formInput}
               required
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Father's Name</label>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Father's Name</label>
             <input
               name="father_name"
               value={form.father_name}
               onChange={handleChange}
-              className="w-full border px-3 py-2 rounded"
+              className={styles.formInput}
               required
             />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Phone Number</label>
+        <div className={styles.formSection}>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Phone Number</label>
             <input
               name="phone"
               value={form.phone}
               onChange={handleChange}
-              className="w-full border px-3 py-2 rounded"
+              className={styles.formInput}
               required
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Aadhar ID</label>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Aadhar ID</label>
             <input
               name="aadhar_id"
               value={form.aadhar_id}
               onChange={handleChange}
-              className="w-full border px-3 py-2 rounded"
+              className={styles.formInput}
               required
             />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">10th Percentage</label>
+        <div className={styles.formSection}>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>10th Percentage</label>
             <input
               name="tenth_percentage"
               value={form.tenth_percentage}
               onChange={handleChange}
-              className="w-full border px-3 py-2 rounded"
+              className={styles.formInput}
               required
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Board Name</label>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Board Name</label>
             <input
               name="board_name"
               value={form.board_name}
               onChange={handleChange}
-              className="w-full border px-3 py-2 rounded"
+              className={styles.formInput}
               required
             />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">State</label>
+        <div className={styles.formSection}>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>State</label>
             <input
               name="state"
               value={form.state}
               onChange={handleChange}
-              className="w-full border px-3 py-2 rounded"
+              className={styles.formInput}
               required
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Category</label>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Category</label>
             <select
               name="category"
               value={form.category}
               onChange={handleChange}
-              className="w-full border px-3 py-2 rounded"
+              className={styles.formSelect}
               required
             >
               <option value="">Select Category</option>
@@ -233,27 +221,27 @@ export default function CandidateDashboard() {
           </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Exam Rank</label>
+        <div className={styles.formGroup}>
+          <label className={styles.formLabel}>Exam Rank</label>
           <input
             name="exam_rank"
             value={form.exam_rank}
             onChange={handleChange}
-            className="w-full border px-3 py-2 rounded"
+            className={styles.formInput}
             required
           />
         </div>
 
-        <div className="space-y-4">
-          <h3 className="font-semibold mt-4">Branch Preferences</h3>
+        <div className={styles.preferencesSection}>
+          <h3 className={styles.preferencesTitle}>Branch Preferences</h3>
           
-          <div>
-            <label className="block text-sm font-medium mb-1">First Preference</label>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>First Preference</label>
             <select
               name="preference1"
               value={form.preference1}
               onChange={handleChange}
-              className="w-full border px-3 py-2 rounded"
+              className={styles.formSelect}
               required
             >
               <option value="">Select First Preference</option>
@@ -264,13 +252,13 @@ export default function CandidateDashboard() {
             </select>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">Second Preference</label>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Second Preference</label>
             <select
               name="preference2"
               value={form.preference2}
               onChange={handleChange}
-              className="w-full border px-3 py-2 rounded"
+              className={styles.formSelect}
               required
             >
               <option value="">Select Second Preference</option>
@@ -281,13 +269,13 @@ export default function CandidateDashboard() {
             </select>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">Third Preference</label>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Third Preference</label>
             <select
               name="preference3"
               value={form.preference3}
               onChange={handleChange}
-              className="w-full border px-3 py-2 rounded"
+              className={styles.formSelect}
               required
             >
               <option value="">Select Third Preference</option>
@@ -299,25 +287,22 @@ export default function CandidateDashboard() {
           </div>
         </div>
 
-        {success && <div className="text-green-600 p-2 rounded bg-green-50">{success}</div>}
-        {error && <div className="text-red-600 p-2 rounded bg-red-50">{error}</div>}
+        {success && <div className={styles.successMessage}>{success}</div>}
+        {error && <div className={styles.errorMessage}>{error}</div>}
 
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded font-semibold hover:bg-blue-700"
-        >
+        <button type="submit" className={styles.submitButton}>
           Save Profile
         </button>
       </form>
 
       {allocation && (
-        <div className="mt-8 p-4 bg-blue-50 rounded">
-          <h3 className="text-lg font-semibold mb-2">Seat Allocation Result</h3>
-          <p className="mb-1">
-            <span className="font-medium">Allocated Course:</span> {allocation.course_name}
+        <div className={styles.allocationResult}>
+          <h3 className={styles.allocationTitle}>Seat Allocation Result</h3>
+          <p className={styles.allocationDetail}>
+            <strong>Allocated Course:</strong> {allocation.course_name}
           </p>
-          <p className="text-sm text-gray-600">
-            Allocation Date: {new Date(allocation.allocated_at).toLocaleDateString()}
+          <p className={styles.allocationDetail}>
+            <strong>Allocation Date:</strong> {new Date(allocation.allocated_at).toLocaleDateString()}
           </p>
         </div>
       )}
