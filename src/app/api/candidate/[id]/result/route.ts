@@ -3,9 +3,11 @@ import pool from '@/lib/db';
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params; // Await the params promise
+    
     const [rows]: any = await pool.query(
       `SELECT 
         sa.allocated_at, 
@@ -15,7 +17,7 @@ export async function GET(
       JOIN candidates cand ON sa.candidate_id = cand.id
       JOIN courses c ON sa.allocated_course_id = c.id
       WHERE cand.user_id = ?`,
-      [params.id]
+      [id]
     );
 
     if (rows.length === 0) {

@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation'; // Added import
+import { useParams } from 'next/navigation';
 
 type CandidateProfile = {
   id: number;
@@ -20,9 +20,9 @@ type AllocationResult = {
   allocated_at: string;
 } | null;
 
-export default function CandidateDashboard() { // Removed params prop
+export default function CandidateDashboard() {
   const params = useParams();
-  const id = params?.id as string; // Get ID from useParams
+  const id = params?.id as string;
 
   const [profile, setProfile] = useState<CandidateProfile | null>(null);
   const [allocation, setAllocation] = useState<AllocationResult>(null);
@@ -48,31 +48,59 @@ export default function CandidateDashboard() { // Removed params prop
   useEffect(() => {
     const fetchData = async () => {
       try {
+        if (!id) {
+          throw new Error('No candidate ID provided');
+        }
+
+        // Fetch profile with better error handling
         const profileRes = await fetch(`/api/candidate/${id}`);
+        if (!profileRes.ok) {
+          throw new Error(`Failed to fetch profile: ${profileRes.status}`);
+        }
         const profileData = await profileRes.json();
         
-        if (!profileData.success) throw new Error(profileData.error);
+        if (!profileData.success) {
+          throw new Error(profileData.error);
+        }
         setProfile(profileData.profile);
 
+        // Fetch allocation result with better error handling
         const resultRes = await fetch(`/api/candidate/${id}/result`);
-        const resultData = await resultRes.json();
-        if (resultData.success) setAllocation(resultData.allocation);
+        if (resultRes.ok) {
+          const resultData = await resultRes.json();
+          if (resultData.success) {
+            setAllocation(resultData.allocation);
+          }
+        }
+        // Don't throw error if no allocation found - this is normal
 
+        // Initialize form with profile data
         if (profileData.profile) {
           setForm({
-            ...form,
-            ...profileData.profile
+            full_name: profileData.profile.full_name || '',
+            father_name: profileData.profile.father_name || '',
+            phone: profileData.profile.phone || '',
+            aadhar_id: profileData.profile.aadhar_id || '',
+            tenth_percentage: profileData.profile.tenth_percentage?.toString() || '',
+            board_name: profileData.profile.board_name || '',
+            state: profileData.profile.state || '',
+            category: profileData.profile.category || '',
+            exam_rank: profileData.profile.exam_rank?.toString() || '',
+            preference1: '',
+            preference2: '',
+            preference3: ''
           });
         }
       } catch (err: any) {
+        console.error('Fetch error:', err);
         setError(err.message || 'Failed to load data');
       } finally {
         setLoading(false);
       }
     };
 
-    if (id) fetchData(); // Added null check for id
-  }, [id]); // Changed dependency to id
+    if (id) fetchData();
+  }, [id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -86,7 +114,7 @@ export default function CandidateDashboard() { // Removed params prop
     try {
       const res = await fetch('/api/candidate/update', {
         method: 'POST',
-        body: JSON.stringify({ userId: id, ...form }), // Changed params.id to id
+        body: JSON.stringify({ userId: id, ...form }),
         headers: { 'Content-Type': 'application/json' }
       });
       const data = await res.json();
@@ -106,6 +134,7 @@ export default function CandidateDashboard() { // Removed params prop
       <h2 className="text-xl font-bold mb-4">Candidate Profile & Branch Preferences</h2>
       
       <form onSubmit={handleSubmit} className="space-y-3">
+        {/* Your existing form JSX remains the same */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium mb-1">Full Name</label>
@@ -270,7 +299,6 @@ export default function CandidateDashboard() { // Removed params prop
           </div>
         </div>
 
-        {/* Status Messages */}
         {success && <div className="text-green-600 p-2 rounded bg-green-50">{success}</div>}
         {error && <div className="text-red-600 p-2 rounded bg-red-50">{error}</div>}
 
@@ -282,7 +310,6 @@ export default function CandidateDashboard() { // Removed params prop
         </button>
       </form>
 
-      {/* Allocation Result Section */}
       {allocation && (
         <div className="mt-8 p-4 bg-blue-50 rounded">
           <h3 className="text-lg font-semibold mb-2">Seat Allocation Result</h3>
