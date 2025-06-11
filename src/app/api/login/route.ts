@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
 
     const user = users[0];
 
+    
     // Admin login
     if (user.is_admin) {
       if (trimmedPassword === user.password) {

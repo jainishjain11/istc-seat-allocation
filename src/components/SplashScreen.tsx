@@ -21,8 +21,9 @@ export default function WelcomePage() {
         <h2 className="welcome-subtitle">
           Official Portal for Diploma courses allotment
         </h2>
-        <div className="welcome-loading">Loading...</div>
+        <div className="welcome-loading">Loading....</div>
       </div>
     </div>
   );
 }
+
