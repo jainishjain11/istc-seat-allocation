@@ -1,35 +1,18 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import styles from './candidate.module.css'; // <-- Import your new CSS module
-
-type CandidateProfile = {
-  id: number;
-  full_name: string;
-  father_name: string;
-  phone: string;
-  aadhar_id: string;
-  tenth_percentage: number;
-  board_name: string;
-  state: string;
-  category: string;
-  exam_rank: number;
-};
-
-type AllocationResult = {
-  course_name: string;
-  allocated_at: string;
-} | null;
+import styles from './candidate.module.css';
 
 export default function CandidateDashboard() {
   const params = useParams();
   const id = params?.id as string;
 
-  const [profile, setProfile] = useState<CandidateProfile | null>(null);
-  const [allocation, setAllocation] = useState<AllocationResult>(null);
+  const [profile, setProfile] = useState(null);
+  const [isNewUser, setIsNewUser] = useState(false);
   const [error, setError] = useState('');
-  const [success, set209Success] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(true);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const [form, setForm] = useState({
     full_name: '',
@@ -49,25 +32,25 @@ export default function CandidateDashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (!id) {
-          throw new Error('No candidate ID provided');
-        }
-        // Fetch profile
+        if (!id) throw new Error('No candidate ID provided');
+        
+        // Fetch candidate profile
         const profileRes = await fetch(`/api/candidate/${id}`);
         if (!profileRes.ok) throw new Error(`Failed to fetch profile: ${profileRes.status}`);
+        
         const profileData = await profileRes.json();
         if (!profileData.success) throw new Error(profileData.error);
-        setProfile(profileData.profile);
-
-        // Fetch allocation result
-        const resultRes = await fetch(`/api/candidate/${id}/result`);
-        if (resultRes.ok) {
-          const resultData = await resultRes.json();
-          if (resultData.success) setAllocation(resultData.allocation);
-        }
-
-        // Initialize form with profile data
-        if (profileData.profile) {
+        
+        if (profileData.isNewUser) {
+          // New user - show empty form
+          setIsNewUser(true);
+          setProfile(null);
+        } else {
+          // Existing user - populate form
+          setProfile(profileData.profile);
+          setIsSubmitted(profileData.profile?.application_status === 'submitted');
+          
+          // Populate form with existing data
           setForm({
             full_name: profileData.profile.full_name || '',
             father_name: profileData.profile.father_name || '',
@@ -83,6 +66,7 @@ export default function CandidateDashboard() {
             preference3: ''
           });
         }
+
       } catch (err: any) {
         console.error('Fetch error:', err);
         setError(err.message || 'Failed to load data');
@@ -95,122 +79,156 @@ export default function CandidateDashboard() {
   }, [id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    if (!isSubmitted) {
+      setForm({ ...form, [e.target.name]: e.target.value });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitted) return;
+    
     setError('');
-    set209Success('');
+    setSuccess('');
+    
     try {
-      const res = await fetch('/api/candidate/update', {
+      const res = await fetch('/api/candidate/register', {
         method: 'POST',
-        body: JSON.stringify({ userId: id, ...form }),
+        body: JSON.stringify({ 
+          userId: id,
+          ...form,
+          application_status: 'submitted'
+        }),
         headers: { 'Content-Type': 'application/json' }
       });
+      
       const data = await res.json();
       if (!data.success) throw new Error(data.error);
-      set209Success('Profile updated successfully!');
+      
+      setSuccess('Registration completed successfully! You cannot edit your details now.');
+      setIsSubmitted(true);
+      setIsNewUser(false);
+
     } catch (err: any) {
-      setError(err.message || 'Failed to update profile');
+      setError(err.message || 'Failed to submit registration');
     }
   };
 
-  if (loading) return <div className={styles.loadingText}>Loading candidate profile...</div>;
+  if (loading) return <div className={styles.loadingText}>Loading...</div>;
   if (error) return <div className={styles.errorMessage}>{error}</div>;
 
   return (
     <div className={styles.dashboardContainer}>
-      <h1 className={styles.pageTitle}>Candidate Profile & Branch Preferences</h1>
+      <h1 className={styles.pageTitle}>
+        {isNewUser ? 'Complete Your Registration' : 'Your Registration Details'}
+      </h1>
+      
+      {isSubmitted && (
+        <div className={styles.successMessage}>
+          Your registration is complete and locked. Contact admin for any changes.
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className={styles.form}>
+        {/* Personal Details Section */}
         <div className={styles.formSection}>
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Full Name</label>
+            <label className={styles.formLabel}>Full Name *</label>
             <input
               name="full_name"
               value={form.full_name}
               onChange={handleChange}
               className={styles.formInput}
               required
+              disabled={isSubmitted}
             />
           </div>
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Father's Name</label>
+            <label className={styles.formLabel}>Father's Name *</label>
             <input
               name="father_name"
               value={form.father_name}
               onChange={handleChange}
               className={styles.formInput}
               required
+              disabled={isSubmitted}
             />
           </div>
         </div>
 
         <div className={styles.formSection}>
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Phone Number</label>
+            <label className={styles.formLabel}>Phone Number *</label>
             <input
               name="phone"
               value={form.phone}
               onChange={handleChange}
               className={styles.formInput}
               required
+              disabled={isSubmitted}
             />
           </div>
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Aadhar ID</label>
+            <label className={styles.formLabel}>Aadhar ID *</label>
             <input
               name="aadhar_id"
               value={form.aadhar_id}
               onChange={handleChange}
               className={styles.formInput}
               required
+              disabled={isSubmitted}
             />
           </div>
         </div>
 
         <div className={styles.formSection}>
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>10th Percentage</label>
+            <label className={styles.formLabel}>10th Percentage *</label>
             <input
               name="tenth_percentage"
               value={form.tenth_percentage}
               onChange={handleChange}
               className={styles.formInput}
+              type="number"
+              step="0.01"
               required
+              disabled={isSubmitted}
             />
           </div>
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Board Name</label>
+            <label className={styles.formLabel}>Board Name *</label>
             <input
               name="board_name"
               value={form.board_name}
               onChange={handleChange}
               className={styles.formInput}
               required
+              disabled={isSubmitted}
             />
           </div>
         </div>
 
         <div className={styles.formSection}>
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>State</label>
+            <label className={styles.formLabel}>State *</label>
             <input
               name="state"
               value={form.state}
               onChange={handleChange}
               className={styles.formInput}
               required
+              disabled={isSubmitted}
             />
           </div>
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Category</label>
+            <label className={styles.formLabel}>Category *</label>
             <select
               name="category"
               value={form.category}
               onChange={handleChange}
               className={styles.formSelect}
               required
+              disabled={isSubmitted}
             >
               <option value="">Select Category</option>
               <option value="General">General</option>
@@ -222,27 +240,31 @@ export default function CandidateDashboard() {
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.formLabel}>Exam Rank</label>
+          <label className={styles.formLabel}>Exam Rank *</label>
           <input
             name="exam_rank"
             value={form.exam_rank}
             onChange={handleChange}
             className={styles.formInput}
+            type="number"
             required
+            disabled={isSubmitted}
           />
         </div>
 
+        {/* Course Preferences */}
         <div className={styles.preferencesSection}>
-          <h3 className={styles.preferencesTitle}>Branch Preferences</h3>
+          <h3 className={styles.preferencesTitle}>Course Preferences</h3>
           
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>First Preference</label>
+            <label className={styles.formLabel}>First Preference *</label>
             <select
               name="preference1"
               value={form.preference1}
               onChange={handleChange}
               className={styles.formSelect}
               required
+              disabled={isSubmitted}
             >
               <option value="">Select First Preference</option>
               <option value="1">Diploma in Mechanical Engineering (Tool & Die)</option>
@@ -253,13 +275,14 @@ export default function CandidateDashboard() {
           </div>
 
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Second Preference</label>
+            <label className={styles.formLabel}>Second Preference *</label>
             <select
               name="preference2"
               value={form.preference2}
               onChange={handleChange}
               className={styles.formSelect}
               required
+              disabled={isSubmitted}
             >
               <option value="">Select Second Preference</option>
               <option value="1">Diploma in Mechanical Engineering (Tool & Die)</option>
@@ -270,13 +293,14 @@ export default function CandidateDashboard() {
           </div>
 
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Third Preference</label>
+            <label className={styles.formLabel}>Third Preference *</label>
             <select
               name="preference3"
               value={form.preference3}
               onChange={handleChange}
               className={styles.formSelect}
               required
+              disabled={isSubmitted}
             >
               <option value="">Select Third Preference</option>
               <option value="1">Diploma in Mechanical Engineering (Tool & Die)</option>
@@ -290,22 +314,14 @@ export default function CandidateDashboard() {
         {success && <div className={styles.successMessage}>{success}</div>}
         {error && <div className={styles.errorMessage}>{error}</div>}
 
-        <button type="submit" className={styles.submitButton}>
-          Save Profile
+        <button 
+          type="submit" 
+          className={styles.submitButton}
+          disabled={isSubmitted}
+        >
+          {isSubmitted ? 'Registration Locked' : 'Submit Final Registration'}
         </button>
       </form>
-
-      {allocation && (
-        <div className={styles.allocationResult}>
-          <h3 className={styles.allocationTitle}>Seat Allocation Result</h3>
-          <p className={styles.allocationDetail}>
-            <strong>Allocated Course:</strong> {allocation.course_name}
-          </p>
-          <p className={styles.allocationDetail}>
-            <strong>Allocation Date:</strong> {new Date(allocation.allocated_at).toLocaleDateString()}
-          </p>
-        </div>
-      )}
     </div>
   );
 }

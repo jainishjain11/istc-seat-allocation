@@ -6,27 +6,32 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params; // Await the params promise
+    const { id } = await params;
     
-    const [rows]: any = await pool.query(
+    // Check if candidate exists
+    const [candidates]: any = await pool.query(
       'SELECT * FROM candidates WHERE user_id = ?', 
       [id]
     );
     
-    if (rows.length === 0) {
-      return NextResponse.json(
-        { success: false, error: 'Candidate not found' }, 
-        { status: 404 }
-      );
+    if (candidates.length === 0) {
+      // Return empty profile for new candidates
+      return NextResponse.json({ 
+        success: true, 
+        profile: null,
+        isNewUser: true 
+      });
     }
     
     return NextResponse.json({ 
       success: true, 
-      profile: rows[0] 
+      profile: candidates[0],
+      isNewUser: false 
     });
+    
   } catch (error: any) {
     return NextResponse.json(
-      { success: false, error: error.message || 'Failed to fetch candidate' },
+      { success: false, error: error.message },
       { status: 500 }
     );
   }
