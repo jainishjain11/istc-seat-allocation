@@ -3,17 +3,16 @@ import pool from '@/lib/db';
 
 export async function POST(req: Request) {
   try {
-    const { publish } = await req.json();
+    const { lock } = await req.json();
     
     await pool.query(
-      'UPDATE system_settings SET results_published = ? WHERE id = 1',
-      [publish]
+      'UPDATE system_settings SET registrations_locked = ? WHERE id = 1',
+      [lock]
     );
     
     return NextResponse.json({ 
       success: true,
-      results_published: publish,
-      message: publish ? 'Results published successfully' : 'Results unpublished successfully'
+      registrations_locked: lock 
     });
   } catch (error: any) {
     return NextResponse.json(
