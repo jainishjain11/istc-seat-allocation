@@ -1,0 +1,203 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.resultCard {
+  max-width: 600px;
+  width: 100%;
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.pageTitle {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 2rem;
+}
+
+.loadingSpinner {
+  text-align: center;
+  padding: 3rem;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #e5e7eb;
+  border-top: 4px solid #4f46e5;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.notPublished {
+  text-align: center;
+  padding: 2rem;
+}
+
+.notPublishedIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.notPublished h2 {
+  color: #374151;
+  margin-bottom: 1rem;
+}
+
+.notPublished p {
+  color: #6b7280;
+  margin-bottom: 1rem;
+}
+
+.noteText {
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
+.resultSuccess {
+  text-align: center;
+}
+
+.successIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.congratsTitle {
+  color: #059669;
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.congratsSubtitle {
+  color: #6b7280;
+  margin-bottom: 2rem;
+}
+
+.allocationDetails {
+  background: #f8fafc;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  text-align: left;
+}
+
+.detailItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.detailItem:last-child {
+  border-bottom: none;
+}
+
+.detailLabel {
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.detailValue {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.nextSteps {
+  background: #eff6ff;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  text-align: left;
+}
+
+.nextSteps h3 {
+  color: #1e40af;
+  margin-bottom: 1rem;
+}
+
+.nextSteps ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.nextSteps li {
+  padding: 0.5rem 0;
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.nextSteps li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #059669;
+  font-weight: bold;
+}
+
+.downloadButton {
+  background: #059669;
+  color: white;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 1rem;
+}
+
+.downloadButton:hover {
+  background: #047857;
+}
+
+.notAllocated {
+  text-align: center;
+  padding: 2rem;
+}
+
+.notAllocatedIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.notAllocated h2 {
+  color: #dc2626;
+  margin-bottom: 1rem;
+}
+
+.waitlistInfo {
+  background: #fef3c7;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-top: 2rem;
+}
+
+.waitlistInfo p {
+  margin: 0.5rem 0;
+  color: #92400e;
+}
+
+.errorMessage {
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  text-align: center;
+  margin-top: 1rem;
+}
