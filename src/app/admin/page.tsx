@@ -181,13 +181,6 @@ export default function AdminDashboard() {
         >
           Export Candidates
         </button>
-
-        <button
-          className={styles.actionButton}
-          onClick={() => window.open('/api/admin/export/courses', '_blank')}
-        >
-          Export Courses
-        </button>
       </div>
 
       {/* System Status */}
