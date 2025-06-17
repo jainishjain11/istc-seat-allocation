@@ -244,6 +244,7 @@ export default function AdminDashboard() {
               <option value="SC">SC</option>
               <option value="ST">ST</option>
               <option value="OBC">OBC</option>
+              <option value="EWS">EWS</option>
             </select>
           </div>
         </div>

@@ -8,6 +8,8 @@ interface Course {
   sc: number;
   st: number;
   obc: number;
+  ews: number;
+  available: number;
 }
 
 interface Candidate {
@@ -15,7 +17,7 @@ interface Candidate {
   exam_rank: number;
   category: string;
   preferences: number[];
-  current_pref_index: number;
+  current_allocation: number | null;
 }
 
 export async function POST() {
@@ -23,7 +25,7 @@ export async function POST() {
   try {
     await connection.beginTransaction();
 
-    // 1. Fetch candidates with valid preferences
+    // Phase 1: Initialize Data
     const [candidatesData]: any = await connection.query(`
       SELECT 
         c.id, c.exam_rank, c.category,
@@ -35,137 +37,102 @@ export async function POST() {
       ORDER BY c.exam_rank ASC
     `);
 
+    const [coursesData]: any = await connection.query(`
+      SELECT * FROM courses
+    `);
+
+    // Phase 2: Prepare Data Structures
     const candidates: Candidate[] = candidatesData.map((c: any) => ({
       ...c,
-      preferences: c.preferences ? c.preferences.split(',').map(Number) : [],
-      current_pref_index: 0
+      preferences: c.preferences.split(',').map(Number),
+      current_allocation: null
     }));
-
-    // 2. Fetch courses with reservation info
-    const [coursesData]: any = await connection.query(`
-      SELECT 
-        id, total_seats, 
-        general_seats AS general,
-        sc_seats AS sc,
-        st_seats AS st,
-        obc_seats AS obc
-      FROM courses
-    `);
 
     const courses: Record<number, Course> = {};
     coursesData.forEach((c: any) => {
       courses[c.id] = {
-        id: c.id,
-        total_seats: c.total_seats,
-        general: c.general,
-        sc: c.sc,
-        st: c.st,
-        obc: c.obc
+        ...c,
+        available: c.available_seats,
       };
     });
 
-    // 3. Initialize allocation structures
+    // Phase 3: Main Allocation Logic
     const allocations = new Map<number, number>();
-    const courseWaitlists: Record<number, Candidate[]> = {};
+    let changed: boolean;
 
-    // 4. Multi-round Deferred Acceptance algorithm
-    let hasRejections = true;
-    while (hasRejections) {
-      hasRejections = false;
-      const applications: Record<number, Candidate[]> = {};
+    do {
+      changed = false;
+      const candidateQueue = [...candidates].sort((a, b) => a.exam_rank - b.exam_rank);
 
-      // Collect applications
-      candidates.forEach(candidate => {
-        if (!allocations.has(candidate.id) && 
-            candidate.current_pref_index < candidate.preferences.length) {
-          const courseId = candidate.preferences[candidate.current_pref_index];
-          if (!applications[courseId]) applications[courseId] = [];
-          applications[courseId].push(candidate);
-        }
-      });
+      for (const candidate of candidateQueue) {
+        if (allocations.has(candidate.id)) continue;
 
-      // Process each course's applications
-      for (const [courseIdStr, applicants] of Object.entries(applications)) {
-        const courseId = parseInt(courseIdStr);
-        const course = courses[courseId];
-        
-        // Sort applicants by exam rank
-        applicants.sort((a, b) => a.exam_rank - b.exam_rank);
+        for (const preference of candidate.preferences) {
+          const course = courses[preference];
+          if (!course || course.available <= 0) continue;
 
-        // Track seats per category
-        const categoryCounts = {
-          general: 0,
-          sc: 0,
-          st: 0,
-          obc: 0
-        };
-
-        const selected: Candidate[] = [];
-        
-        for (const candidate of applicants) {
-          const category = candidate.category.toLowerCase() as keyof typeof categoryCounts;
-          
-          // Handle invalid categories
-          const validCategory = ['general', 'sc', 'st', 'obc'].includes(category) 
-            ? category 
-            : 'general';
-
-          if (categoryCounts[validCategory] < course[validCategory]) {
-            selected.push(candidate);
-            categoryCounts[validCategory]++;
-          } else if (categoryCounts.general < course.general) {
-            selected.push(candidate);
-            categoryCounts.general++;
+          const category = candidate.category.toLowerCase() as keyof Course;
+          if (course[category] > 0) {
+            // Allocate reserved seat
+            course[category]--;
+            course.available--;
+            allocations.set(candidate.id, preference);
+            changed = true;
+            break;
+          } else if (course.general > 0) {
+            // Allocate general seat
+            course.general--;
+            course.available--;
+            allocations.set(candidate.id, preference);
+            changed = true;
+            break;
           }
-          
-          if (selected.length >= course.total_seats) break;
         }
-
-        // Update allocations
-        selected.forEach(candidate => {
-          allocations.set(candidate.id, courseId);
-        });
-
-        // Handle rejections
-        applicants.slice(selected.length).forEach(candidate => {
-          candidate.current_pref_index++;
-          hasRejections = true;
-        });
-
-        courseWaitlists[courseId] = selected;
       }
-    }
 
-    // 5. Update database
+      // Phase 4: Convert unused reserved seats to general
+      for (const course of Object.values(courses) as Course[]) {
+        const reservedSeats = course.sc + course.st + course.obc + course.ews;
+        if (reservedSeats > 0) {
+          course.general += reservedSeats;
+          course.sc = 0;
+          course.st = 0;
+          course.obc = 0;
+          course.ews = 0;
+        }
+      }
+
+    } while (changed);
+
+    // Phase 5: Update Database
     await connection.query('DELETE FROM seat_allocations');
     
-    // Batch insert allocations
-    if (allocations.size > 0) {
-      const allocationEntries = Array.from(allocations.entries());
+    const allocationEntries = Array.from(allocations.entries()).map(([cid, courseId]) => [cid, courseId]);
+    if (allocationEntries.length > 0) {
       await connection.query(
         `INSERT INTO seat_allocations (candidate_id, allocated_course_id) VALUES ?`,
         [allocationEntries]
       );
     }
 
-    // Update course seats
+    // Update course availability
     for (const [courseId, course] of Object.entries(courses)) {
-      const waitlist = courseWaitlists[parseInt(courseId)] || [];
-      
       await connection.query(
         `UPDATE courses SET
           available_seats = ?,
           general_seats = ?,
           sc_seats = ?,
           st_seats = ?,
-          obc_seats = ?
+          obc_seats = ?,
+          ews_seats = ?
          WHERE id = ?`,
         [
-          course.total_seats - waitlist.length,
+          course.available,
           course.general,
           course.sc,
           course.st,
           course.obc,
+          course.ews,
           courseId
         ]
       );
