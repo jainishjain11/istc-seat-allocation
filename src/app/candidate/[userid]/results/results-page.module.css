@@ -1,0 +1,57 @@
+/* src/app/candidate/[userId]/results/results-page.module.css */
+.container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  background-color: #f5f5f5;
+}
+
+.card {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 500px;
+}
+
+.heading {
+  text-align: center;
+  color: #1a237e;
+  margin-bottom: 1.5rem;
+}
+
+.result {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: #f8fafc;
+  border-radius: 4px;
+}
+
+.resultDetail {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.resultLabel {
+  font-weight: 500;
+  color: #475569;
+}
+
+.error {
+  color: #dc2626;
+  background-color: #fee2e2;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-top: 1rem;
+}
+
+.loadingText {
+  text-align: center;
+  color: #4b5563;
+}
