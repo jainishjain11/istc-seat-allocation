@@ -42,7 +42,7 @@ export async function POST() {
     const [coursesData]: any = await connection.query(`SELECT * FROM courses`);
     console.log(`📊 Found ${candidatesData.length} candidates and ${coursesData.length} courses`);
 
-    // Phase 2: Prepare Data Structures
+    // Phase 2: Prepare Data Structures (Corrected mapping here)
     const candidates: Candidate[] = candidatesData.map((c: any) => ({
       ...c,
       preferences: c.preferences.split(',').map(Number),
@@ -52,13 +52,19 @@ export async function POST() {
     const courses: Record<number, Course> = {};
     coursesData.forEach((c: any) => {
       courses[c.id] = {
-        ...c,
+        id: c.id,
+        total_seats: c.total_seats,
+        general: c.general_seats,
+        sc: c.sc_seats,
+        st: c.st_seats,
+        obc: c.obc_seats,
+        ews: c.ews_seats,
         available: c.general_seats + c.sc_seats + c.st_seats + c.obc_seats + c.ews_seats,
       };
       console.log(`📚 Course ${c.id}: ${c.course_name} - Available: ${courses[c.id].available}`);
     });
 
-    // Phase 3: Main Allocation Logic
+    // Phase 3: Main Allocation Logic (Remains unchanged)
     const allocations = new Map<number, number>();
     let changed: boolean;
     let iteration = 0;
@@ -95,7 +101,6 @@ export async function POST() {
           const category = candidate.category.toLowerCase() as keyof Course;
           console.log(`   🔍 Checking ${category} seats: ${course[category]}`);
 
-          // Validate category exists in course
           if (!(category in course)) {
             console.log(`   ❌ Invalid category '${category}' for candidate ${candidate.id}`);
             continue;
@@ -139,7 +144,7 @@ export async function POST() {
 
     } while (changed);
 
-    // Phase 5: Update Database
+    // Phase 5: Update Database (Now uses correct values)
     console.log('\n💾 Updating database with allocation results');
     await connection.query('DELETE FROM seat_allocations');
     
