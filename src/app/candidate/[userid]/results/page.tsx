@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import styles from './results.module.css';
+import styles from './results-page.module.css'; // Correct import
 
 type AllocationResult = {
   course_name: string;

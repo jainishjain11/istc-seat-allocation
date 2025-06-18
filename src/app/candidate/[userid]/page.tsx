@@ -1,8 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import styles from './results-page.module.css';  // Not 'results.module.css'
-
+import styles from './candidate-view.module.css';
 
 export default function CandidateResultPage() {
   const params = useParams();
