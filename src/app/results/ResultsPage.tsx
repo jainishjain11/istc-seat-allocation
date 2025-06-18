@@ -1,3 +1,4 @@
+// src/app/results/ResultsPage.tsx
 'use client';
 import { useState } from 'react';
 import styles from './results-page.module.css';
@@ -7,23 +8,39 @@ export default function ResultsPage() {
   const [dob, setDob] = useState('');
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
+    setResult(null);
+
     try {
-      const res = await fetch(`/api/results?email=${encodeURIComponent(email)}&dob=${encodeURIComponent(dob)}`);
+      const res = await fetch(
+        `/api/results?email=${encodeURIComponent(email)}&dob=${encodeURIComponent(dob)}`
+      );
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
       const data = await res.json();
 
       if (data.success) {
-        setResult(data.result);
-        setError('');
+        if (data.result) {
+          setResult(data.result);
+        } else {
+          setError('No allocation found for your credentials');
+        }
       } else {
-        setError(data.error);
-        setResult(null);
+        setError(data.error || 'Failed to fetch results');
       }
     } catch (err) {
-      setError('Failed to fetch results');
-      setResult(null);
+      console.error('Fetch error:', err);
+      setError('Failed to fetch results. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -56,14 +73,27 @@ export default function ResultsPage() {
             />
           </div>
           <div>
-            <button type="submit" className={styles.button}>
-              Check Result
+            <button 
+              type="submit" 
+              className={styles.button}
+              disabled={loading}
+            >
+              {loading ? 'Checking...' : 'Check Result'}
             </button>
           </div>
         </form>
+
         {error && (
-          <div className={styles.error}>{error}</div>
+          <div className={styles.error}>
+            {error}
+            {error.includes('not published') && (
+              <p className={styles.errorNote}>
+                Please check back later or contact the administration.
+              </p>
+            )}
+          </div>
         )}
+
         {result && (
           <div className={styles.result}>
             <div className={styles.resultHeading}>Allocation Result</div>
@@ -77,7 +107,11 @@ export default function ResultsPage() {
             </div>
             <div className={styles.resultDetail}>
               <span className={styles.resultLabel}>Allocated on:</span>
-              {new Date(result.allocated_at).toLocaleDateString()}
+              {new Date(result.allocated_at).toLocaleDateString('en-IN', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+              })}
             </div>
           </div>
         )}

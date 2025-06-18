@@ -1,3 +1,4 @@
+// src/app/api/results/route.ts
 import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
 
@@ -12,21 +13,23 @@ export async function GET(request: Request) {
       'SELECT results_published FROM system_settings'
     );
     
-    if (!settings[0].results_published) {
+    if (!settings.length || !settings[0].results_published) {
       return NextResponse.json(
         { success: false, error: 'Results not published yet' },
         { status: 403 }
       );
     }
 
-    // Verify candidate credentials
-    const [users]: any = await pool.query(
-      `SELECT id FROM users 
-       WHERE email = ? AND password = ? AND is_qualified = TRUE`,
+    // Verify candidate credentials and get candidate ID
+    const [candidates]: any = await pool.query(
+      `SELECT c.id 
+       FROM candidates c
+       JOIN users u ON c.user_id = u.id
+       WHERE u.email = ? AND u.dob = ? AND u.is_qualified = TRUE`,
       [email, dob]
     );
 
-    if (users.length === 0) {
+    if (candidates.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Invalid credentials or not qualified' },
         { status: 401 }
@@ -34,22 +37,26 @@ export async function GET(request: Request) {
     }
 
     // Get allocation result
-    const [allocation]: any = await pool.query(
-      `SELECT c.course_name, c.course_code, sa.allocated_at 
+    const [allocations]: any = await pool.query(
+      `SELECT 
+         c.course_name, 
+         c.course_code, 
+         sa.allocated_at 
        FROM seat_allocations sa
        JOIN courses c ON sa.allocated_course_id = c.id
        WHERE sa.candidate_id = ?`,
-      [users[0].id]
+      [candidates[0].id]
     );
 
     return NextResponse.json({
       success: true,
-      result: allocation[0] || null
+      result: allocations[0] || null
     });
 
   } catch (error: any) {
+    console.error('Results API Error:', error);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: 'Failed to fetch results' },
       { status: 500 }
     );
   }
