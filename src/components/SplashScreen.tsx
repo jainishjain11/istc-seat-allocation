@@ -8,7 +8,7 @@ export default function SplashScreen() {
   useEffect(() => {
     const timer = setTimeout(() => {
       router.replace('/login');
-    }, 3000); // 3 seconds
+    }, 3000);
     return () => clearTimeout(timer);
   }, [router]);
 
@@ -22,75 +22,77 @@ export default function SplashScreen() {
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-end',
         justifyContent: 'center',
-        position: 'relative'
+        position: 'relative',
       }}
     >
+      {/* Darker Overlay for better contrast */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
-          background: 'rgba(0,0,0,0.45)'
+          background: 'rgba(10, 23, 55, 0.65)', // deep blue-black overlay
+          zIndex: 0,
         }}
       />
       <div
         style={{
           position: 'relative',
           zIndex: 1,
-          textAlign: 'center'
+          textAlign: 'center',
+          width: '100%',
+          paddingBottom: '8vh',
+          paddingLeft: '2vw',
+          paddingRight: '2vw',
         }}
       >
         <h1
           style={{
-            fontSize: '2.5rem',
-            fontWeight: 700,
-            color: '#fff',
-            textShadow: '0 2px 16px rgba(0,0,0,0.7), 0 1px 2px #333'
+            fontSize: '3.2rem',
+            fontWeight: 800,
+            color: '#f3f4f6', // near white
+            textShadow: '0 4px 24px rgba(0,0,0,0.95), 0 2px 8px #1e293b',
+            letterSpacing: '0.04em',
+            marginBottom: '0.5rem',
           }}
         >
-          INDO Swiss Training Centre
+          Indo Swiss Training Centre
         </h1>
         <h2
           style={{
-            fontSize: '1.4rem',
-            color: '#fff',
-            fontWeight: 500,
-            margin: '1rem 0 0.5rem 0',
-            textShadow: '0 2px 16px rgba(0,0,0,0.7)'
+            fontSize: '2rem',
+            color: '#fbbf24', // deep gold
+            fontWeight: 700,
+            marginBottom: '0.5rem',
+            textShadow: '0 4px 24px rgba(0,0,0,0.9)',
+            letterSpacing: '0.03em',
           }}
         >
           Seat Allocation System
         </h2>
         <div
           style={{
-            color: '#fff',
-            fontSize: '1.1rem',
-            marginBottom: '2rem',
-            textShadow: '0 2px 16px rgba(0,0,0,0.7)'
+            color: '#e0e7ef',
+            fontSize: '1.35rem',
+            fontWeight: 500,
+            marginBottom: '1.2rem',
+            textShadow: '0 4px 24px rgba(0,0,0,0.9)',
+            letterSpacing: '0.02em',
           }}
         >
           Official Portal for Diploma Courses Allotment
         </div>
+        
         <div
           style={{
-            color: '#fbbf24',
-            fontWeight: 600,
-            fontSize: '1rem',
-            textShadow: '0 2px 16px rgba(0,0,0,0.7)'
-          }}
-        >
-          A Government of India Institute
-        </div>
-        <div
-          style={{
-            marginTop: '2.5rem',
             color: '#fff',
-            fontSize: '1.1rem',
-            fontWeight: 400,
-            letterSpacing: '0.05em',
-            textShadow: '0 2px 16px rgba(0,0,0,0.7)',
-            opacity: 0.9
+            fontSize: '1.3rem',
+            fontWeight: 500,
+            textShadow: '0 4px 24px rgba(0,0,0,0.7)',
+            opacity: 0.97,
+            marginTop: '2rem',
+            letterSpacing: '0.04em',
           }}
         >
           Loading...
