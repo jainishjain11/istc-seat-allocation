@@ -1,64 +1,35 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import styles from './candidate-view.module.css';
+import { useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 
-export default function CandidateResultPage() {
+export default function CandidateRouter() {
   const params = useParams();
+  const router = useRouter();
   const userId = params?.userId as string;
-  const [result, setResult] = useState<any>(null);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchResult = async () => {
+    const checkProfile = async () => {
       try {
-        const res = await fetch(`/api/candidate/${userId}/results`);
+        const res = await fetch(`/api/candidate/${userId}/profile`);
         const data = await res.json();
-        if (data.success) {
-          if (data.result) {
-            setResult(data.result);
-          } else {
-            setError('No seat has been allocated to you in this round.');
-          }
+        
+        if (data.success && data.profile) {
+          router.push(`/candidate/${userId}/dashboard`);
         } else {
-          setError(data.error || 'Failed to fetch results');
+          router.push(`/candidate/${userId}/register`);
         }
-      } catch (err) {
-        setError('Failed to fetch results. Please try again.');
-      } finally {
-        setLoading(false);
+      } catch (error) {
+        console.error('Profile check failed:', error);
+        router.push(`/candidate/${userId}/register`);
       }
     };
-    if (userId) fetchResult();
-  }, [userId]);
 
-  if (loading) return <div className={styles.loadingText}>Loading result...</div>;
-  if (error) return <div className={styles.error}>{error}</div>;
+    if (userId) checkProfile();
+  }, [userId, router]);
 
   return (
-    <div className={styles.container}>
-      <div className={styles.card}>
-        <h2 className={styles.heading}>Allocation Result</h2>
-        <div className={styles.result}>
-          <div className={styles.resultDetail}>
-            <span className={styles.resultLabel}>Course:</span>
-            {result.course_name}
-          </div>
-          <div className={styles.resultDetail}>
-            <span className={styles.resultLabel}>Course Code:</span>
-            {result.course_code}
-          </div>
-          <div className={styles.resultDetail}>
-            <span className={styles.resultLabel}>Allocated on:</span>
-            {new Date(result.allocated_at).toLocaleDateString('en-IN', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric'
-            })}
-          </div>
-        </div>
-      </div>
+    <div className="flex justify-center items-center h-screen">
+      <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
     </div>
   );
 }
