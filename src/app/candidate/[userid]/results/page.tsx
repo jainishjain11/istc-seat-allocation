@@ -19,6 +19,7 @@ export default function CandidateResults() {
   const [error, setError] = useState('');
   const [resultPublished, setResultPublished] = useState(false);
 
+  
   useEffect(() => {
     const fetchResults = async () => {
       try {

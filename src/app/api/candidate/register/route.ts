@@ -7,7 +7,6 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     console.log('📨 Full request body received:', body); // Debug log
-    
     // Extract userId from request body
     const userId = body.userId;
     
