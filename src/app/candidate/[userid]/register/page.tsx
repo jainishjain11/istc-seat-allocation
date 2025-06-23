@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import styles from './register.module.css';
 
 export default function CandidateRegistration() {
   const params = useParams();
@@ -33,11 +34,9 @@ export default function CandidateRegistration() {
         const res = await fetch('/api/courses');
         const data = await res.json();
         
-        // Handle API response structure
         if (data.success && Array.isArray(data.courses)) {
           setCourses(data.courses);
         } else {
-          console.error('Unexpected courses format:', data);
           setCourses([]);
         }
       } catch (err) {
@@ -82,75 +81,73 @@ export default function CandidateRegistration() {
     }
   };
 
+  if (loadingCourses) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.loadingText}>
+          Loading registration form...
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div style={{ maxWidth: '800px', margin: '2rem auto', padding: '2rem' }}>
-      <h1 style={{ textAlign: 'center', marginBottom: '2rem', color: '#1e40af' }}>
-        Complete Your Registration
-      </h1>
+    <div className={styles.container}>
+      <h1 className={styles.heading}>Complete Your Registration</h1>
       
-      <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1.5rem' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
-          {/* Personal Details Section */}
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-              Full Name *
-            </label>
+      <form onSubmit={handleSubmit} className={styles.form}>
+        <div className={styles.gridContainer}>
+          {/* Personal Details */}
+          <div className={styles.inputGroup}>
+            <label className={styles.label}>Full Name *</label>
             <input
               type="text"
               name="full_name"
               value={formData.full_name}
               onChange={handleChange}
               required
-              style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              className={styles.input}
             />
           </div>
           
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-              Father's Name *
-            </label>
+          <div className={styles.inputGroup}>
+            <label className={styles.label}>Father's Name *</label>
             <input
               type="text"
               name="father_name"
               value={formData.father_name}
               onChange={handleChange}
               required
-              style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              className={styles.input}
             />
           </div>
           
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-              Phone Number *
-            </label>
+          <div className={styles.inputGroup}>
+            <label className={styles.label}>Phone Number *</label>
             <input
               type="tel"
               name="phone"
               value={formData.phone}
               onChange={handleChange}
               required
-              style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              className={styles.input}
             />
           </div>
           
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-              Aadhar ID *
-            </label>
+          <div className={styles.inputGroup}>
+            <label className={styles.label}>Aadhar ID *</label>
             <input
               type="text"
               name="aadhar_id"
               value={formData.aadhar_id}
               onChange={handleChange}
               required
-              style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              className={styles.input}
             />
           </div>
           
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-              10th Percentage *
-            </label>
+          <div className={styles.inputGroup}>
+            <label className={styles.label}>10th Percentage *</label>
             <input
               type="number"
               name="tenth_percentage"
@@ -160,48 +157,42 @@ export default function CandidateRegistration() {
               max="100"
               step="0.01"
               required
-              style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              className={styles.input}
             />
           </div>
           
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-              Board Name *
-            </label>
+          <div className={styles.inputGroup}>
+            <label className={styles.label}>Board Name *</label>
             <input
               type="text"
               name="board_name"
               value={formData.board_name}
               onChange={handleChange}
               required
-              style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              className={styles.input}
             />
           </div>
           
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-              State *
-            </label>
+          <div className={styles.inputGroup}>
+            <label className={styles.label}>State *</label>
             <input
               type="text"
               name="state"
               value={formData.state}
               onChange={handleChange}
               required
-              style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              className={styles.input}
             />
           </div>
           
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-              Category *
-            </label>
+          <div className={styles.inputGroup}>
+            <label className={styles.label}>Category *</label>
             <select
               name="category"
               value={formData.category}
               onChange={handleChange}
               required
-              style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              className={styles.select}
             >
               <option value="General">General</option>
               <option value="OBC">OBC</option>
@@ -211,10 +202,8 @@ export default function CandidateRegistration() {
             </select>
           </div>
           
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-              Exam Rank *
-            </label>
+          <div className={styles.inputGroup}>
+            <label className={styles.label}>Exam Rank *</label>
             <input
               type="number"
               name="exam_rank"
@@ -222,27 +211,23 @@ export default function CandidateRegistration() {
               onChange={handleChange}
               min="1"
               required
-              style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              className={styles.input}
             />
           </div>
         </div>
         
-        <div style={{ marginTop: '2rem' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>
-            Course Preferences
-          </h2>
+        <div className={styles.preferencesSection}>
+          <h2 className={styles.preferencesTitle}>Course Preferences</h2>
           
-          <div style={{ display: 'grid', gap: '1rem' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                First Preference *
-              </label>
+          <div className={styles.preferenceGroup}>
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>First Preference *</label>
               <select
                 name="preference_1"
                 value={formData.preference_1}
                 onChange={handleChange}
                 required
-                style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+                className={styles.select}
               >
                 <option value="">Select Course</option>
                 {courses.map((course) => (
@@ -253,15 +238,13 @@ export default function CandidateRegistration() {
               </select>
             </div>
             
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                Second Preference
-              </label>
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>Second Preference</label>
               <select
                 name="preference_2"
                 value={formData.preference_2}
                 onChange={handleChange}
-                style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+                className={styles.select}
               >
                 <option value="">Select Course</option>
                 {courses.map((course) => (
@@ -272,15 +255,13 @@ export default function CandidateRegistration() {
               </select>
             </div>
             
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                Third Preference
-              </label>
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>Third Preference</label>
               <select
                 name="preference_3"
                 value={formData.preference_3}
                 onChange={handleChange}
-                style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+                className={styles.select}
               >
                 <option value="">Select Course</option>
                 {courses.map((course) => (
@@ -294,7 +275,7 @@ export default function CandidateRegistration() {
         </div>
         
         {error && (
-          <div style={{ color: '#dc2626', backgroundColor: '#fee2e2', padding: '1rem', borderRadius: '0.375rem' }}>
+          <div className={styles.error}>
             {error}
           </div>
         )}
@@ -302,18 +283,7 @@ export default function CandidateRegistration() {
         <button
           type="submit"
           disabled={submitting}
-          style={{
-            width: '100%',
-            padding: '0.75rem',
-            backgroundColor: submitting ? '#9ca3af' : '#1e40af',
-            color: 'white',
-            fontSize: '1rem',
-            fontWeight: '500',
-            border: 'none',
-            borderRadius: '0.375rem',
-            cursor: submitting ? 'not-allowed' : 'pointer',
-            marginTop: '1rem'
-          }}
+          className={styles.submitButton}
         >
           {submitting ? 'Submitting...' : 'Complete Registration'}
         </button>
