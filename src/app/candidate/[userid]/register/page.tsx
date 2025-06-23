@@ -1,3 +1,4 @@
+// src/app/candidate/[userId]/register/page.tsx
 'use client';
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -50,6 +51,19 @@ export default function CandidateRegistration() {
     fetchCourses();
   }, []);
 
+  // Get available courses for a specific preference dropdown
+  const getAvailableCourses = (currentPreference: string) => {
+    const selectedPreferences = [
+      formData.preference_1,
+      formData.preference_2,
+      formData.preference_3
+    ].filter(id => id && id !== currentPreference);
+
+    return courses.filter(course => 
+      !selectedPreferences.includes(course.id.toString())
+    );
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -59,6 +73,19 @@ export default function CandidateRegistration() {
     e.preventDefault();
     setSubmitting(true);
     setError('');
+    
+    // Validate that all preferences are unique
+    const preferences = [
+      formData.preference_1,
+      formData.preference_2,
+      formData.preference_3
+    ].filter(Boolean);
+    
+    if (new Set(preferences).size !== preferences.length) {
+      setError('Each course can only be selected once across preferences');
+      setSubmitting(false);
+      return;
+    }
     
     try {
       const res = await fetch('/api/candidate/register', {
@@ -97,7 +124,7 @@ export default function CandidateRegistration() {
       
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.gridContainer}>
-          {/* Personal Details */}
+          {/* Personal Details Section */}
           <div className={styles.inputGroup}>
             <label className={styles.label}>Full Name *</label>
             <input
@@ -218,6 +245,9 @@ export default function CandidateRegistration() {
         
         <div className={styles.preferencesSection}>
           <h2 className={styles.preferencesTitle}>Course Preferences</h2>
+          <p className={styles.preferencesNote}>
+            Each course can only be selected once across all preferences
+          </p>
           
           <div className={styles.preferenceGroup}>
             <div className={styles.inputGroup}>
@@ -230,7 +260,7 @@ export default function CandidateRegistration() {
                 className={styles.select}
               >
                 <option value="">Select Course</option>
-                {courses.map((course) => (
+                {getAvailableCourses(formData.preference_1).map((course) => (
                   <option key={course.id} value={course.id}>
                     {course.course_name}
                   </option>
@@ -247,7 +277,7 @@ export default function CandidateRegistration() {
                 className={styles.select}
               >
                 <option value="">Select Course</option>
-                {courses.map((course) => (
+                {getAvailableCourses(formData.preference_2).map((course) => (
                   <option key={course.id} value={course.id}>
                     {course.course_name}
                   </option>
@@ -264,7 +294,7 @@ export default function CandidateRegistration() {
                 className={styles.select}
               >
                 <option value="">Select Course</option>
-                {courses.map((course) => (
+                {getAvailableCourses(formData.preference_3).map((course) => (
                   <option key={course.id} value={course.id}>
                     {course.course_name}
                   </option>

@@ -1,3 +1,4 @@
+
 .container {
   max-width: 800px;
   margin: 2rem auto;
@@ -20,6 +21,18 @@
 .form {
   display: grid;
   gap: 1.5rem;
+}
+
+.gridContainer {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .gridContainer {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .inputGroup {
@@ -67,7 +80,14 @@
   font-size: 1.25rem;
   font-weight: 600;
   color: #1e293b;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.preferencesNote {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+  font-style: italic;
 }
 
 .preferenceGroup {
@@ -114,12 +134,4 @@
   padding: 2rem;
   color: #4b5563;
   font-size: 1.125rem;
-}
-
-@media (min-width: 768px) {
-  .gridContainer {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-  }
 }
