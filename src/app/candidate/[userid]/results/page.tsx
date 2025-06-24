@@ -1,3 +1,4 @@
+// src/app/candidate/[userId]/results/page.tsx
 'use client';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
@@ -7,7 +8,6 @@ type AllocationResult = {
   course_name: string;
   course_code: string;
   allocated_at: string;
-  course_id: number;
 } | null;
 
 export default function CandidateResults() {
@@ -15,16 +15,15 @@ export default function CandidateResults() {
   const userId = params?.userId as string;
   
   const [result, setResult] = useState<AllocationResult>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
   const [resultPublished, setResultPublished] = useState(false);
+  const [candidateName, setCandidateName] = useState('');
 
+  // Fetch results
   useEffect(() => {
     const fetchResults = async () => {
       try {
-        setLoading(true);
-        setError('');
-        
         const res = await fetch(`/api/candidate/${userId}/results`);
         const data = await res.json();
         
@@ -32,10 +31,10 @@ export default function CandidateResults() {
           setResultPublished(data.published);
           setResult(data.result);
         } else {
-          setError(data.error || 'Failed to fetch results');
+          setError(data.error);
         }
       } catch (err) {
-        setError('Failed to fetch results. Please try again.');
+        setError('Failed to fetch results');
       } finally {
         setLoading(false);
       }
@@ -43,6 +42,46 @@ export default function CandidateResults() {
 
     if (userId) fetchResults();
   }, [userId]);
+
+  // Fetch candidate name for letter
+  useEffect(() => {
+    const fetchCandidateName = async () => {
+      try {
+        const res = await fetch(`/api/candidate/${userId}/profile`);
+        const data = await res.json();
+        if (data.success && data.profile) {
+          setCandidateName(data.profile.full_name);
+        }
+      } catch (err) {
+        console.error('Failed to fetch candidate name');
+      }
+    };
+    
+    if (userId) fetchCandidateName();
+  }, [userId]);
+
+  // Handle download allocation letter
+  const handleDownloadLetter = async () => {
+    try {
+      const response = await fetch(`/api/candidate/${userId}/allocation-letter`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to download allocation letter');
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ISTC-Allocation-Letter-${candidateName.replace(/\s+/g, '-')}.docx`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      setError('Failed to download allocation letter. Please try again.');
+    }
+  };
 
   if (loading) {
     return (
@@ -85,7 +124,7 @@ export default function CandidateResults() {
                 <span className={styles.detailValue}>{result.course_code}</span>
               </div>
               <div className={styles.detailItem}>
-                <span className={styles.detailLabel}>Allocation Date:</span>
+                <span className={styles.detailLabel}>Allocated on:</span>
                 <span className={styles.detailValue}>
                   {new Date(result.allocated_at).toLocaleDateString('en-IN', {
                     day: 'numeric',
@@ -105,7 +144,10 @@ export default function CandidateResults() {
               </ul>
             </div>
 
-            <button className={styles.downloadButton}>
+            <button 
+              className={styles.downloadButton}
+              onClick={handleDownloadLetter}
+            >
               Download Allocation Letter
             </button>
           </div>
