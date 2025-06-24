@@ -1,39 +1,41 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import styles from './results-page.module.css'; // Correct import
+import styles from './results-page.module.css';
 
 type AllocationResult = {
   course_name: string;
   course_code: string;
   allocated_at: string;
-  rank_allocated: number;
+  course_id: number;
 } | null;
 
 export default function CandidateResults() {
   const params = useParams();
-  const userId = params?.id as string;
+  const userId = params?.userId as string;
   
   const [result, setResult] = useState<AllocationResult>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [resultPublished, setResultPublished] = useState(false);
 
-  
   useEffect(() => {
     const fetchResults = async () => {
       try {
+        setLoading(true);
+        setError('');
+        
         const res = await fetch(`/api/candidate/${userId}/results`);
         const data = await res.json();
         
         if (data.success) {
           setResultPublished(data.published);
-          setResult(data.allocation);
+          setResult(data.result);
         } else {
-          setError(data.error);
+          setError(data.error || 'Failed to fetch results');
         }
       } catch (err) {
-        setError('Failed to fetch results');
+        setError('Failed to fetch results. Please try again.');
       } finally {
         setLoading(false);
       }
@@ -83,13 +85,13 @@ export default function CandidateResults() {
                 <span className={styles.detailValue}>{result.course_code}</span>
               </div>
               <div className={styles.detailItem}>
-                <span className={styles.detailLabel}>Allocated At Rank:</span>
-                <span className={styles.detailValue}>{result.rank_allocated}</span>
-              </div>
-              <div className={styles.detailItem}>
                 <span className={styles.detailLabel}>Allocation Date:</span>
                 <span className={styles.detailValue}>
-                  {new Date(result.allocated_at).toLocaleDateString('en-IN')}
+                  {new Date(result.allocated_at).toLocaleDateString('en-IN', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                  })}
                 </span>
               </div>
             </div>

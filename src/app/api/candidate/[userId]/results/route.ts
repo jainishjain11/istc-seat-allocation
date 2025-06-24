@@ -9,10 +9,15 @@ export async function GET(request: Request, { params }: { params: { userId: stri
     const [settings]: any = await pool.query(
       'SELECT results_published FROM system_settings'
     );
+    
     if (!settings.length || !settings[0].results_published) {
       return NextResponse.json(
-        { success: false, error: 'Results not published yet' },
-        { status: 403 }
+        { 
+          success: true,
+          published: false,
+          result: null
+        },
+        { status: 200 }
       );
     }
 
@@ -21,16 +26,24 @@ export async function GET(request: Request, { params }: { params: { userId: stri
       `SELECT id FROM candidates WHERE user_id = ?`,
       [userId]
     );
+    
     if (candidates.length === 0) {
       return NextResponse.json(
-        { success: false, error: 'Candidate not found' },
+        { 
+          success: false, 
+          error: 'Candidate not found' 
+        },
         { status: 404 }
       );
     }
 
     // Get allocation result
     const [allocations]: any = await pool.query(
-      `SELECT c.course_name, c.course_code, sa.allocated_at
+      `SELECT 
+        c.course_name, 
+        c.course_code, 
+        sa.allocated_at,
+        c.id AS course_id
        FROM seat_allocations sa
        JOIN courses c ON sa.allocated_course_id = c.id
        WHERE sa.candidate_id = ?`,
@@ -39,9 +52,12 @@ export async function GET(request: Request, { params }: { params: { userId: stri
 
     return NextResponse.json({
       success: true,
+      published: true,
       result: allocations[0] || null
     });
+
   } catch (error: any) {
+    console.error('Results API Error:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to fetch results' },
       { status: 500 }
