@@ -1,17 +1,4 @@
-'use client';
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-
 export default function SplashScreen() {
-  const router = useRouter();
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      router.replace('/login');
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, [router]);
-
   return (
     <div
       style={{
@@ -32,7 +19,7 @@ export default function SplashScreen() {
         style={{
           position: 'absolute',
           inset: 0,
-          background: 'rgba(10, 23, 55, 0.65)', // deep blue-black overlay
+          background: 'rgba(10, 23, 55, 0.65)',
           zIndex: 0,
         }}
       />
@@ -51,18 +38,18 @@ export default function SplashScreen() {
           style={{
             fontSize: '3.2rem',
             fontWeight: 800,
-            color: '#f3f4f6', // near white
+            color: '#f3f4f6',
             textShadow: '0 4px 24px rgba(0,0,0,0.95), 0 2px 8px #1e293b',
             letterSpacing: '0.04em',
             marginBottom: '0.5rem',
           }}
         >
-          Indo Swiss Training Centre
+          INDO Swiss Training Centre
         </h1>
         <h2
           style={{
             fontSize: '2rem',
-            color: '#fbbf24', // deep gold
+            color: '#fbbf24',
             fontWeight: 700,
             marginBottom: '0.5rem',
             textShadow: '0 4px 24px rgba(0,0,0,0.9)',
@@ -83,7 +70,18 @@ export default function SplashScreen() {
         >
           Official Portal for Diploma Courses Allotment
         </div>
-        
+        <div
+          style={{
+            color: '#38bdf8',
+            fontWeight: 600,
+            fontSize: '1.15rem',
+            marginBottom: '2.5rem',
+            textShadow: '0 4px 24px rgba(0,0,0,0.85)',
+            letterSpacing: '0.03em',
+          }}
+        >
+          A Government of India Institute
+        </div>
         <div
           style={{
             color: '#fff',

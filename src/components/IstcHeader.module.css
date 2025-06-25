@@ -1,0 +1,71 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 24px;
+  height: 120px;
+  box-sizing: border-box;
+  border-bottom: 3px solid #1e40af;
+  background: #fff;
+  overflow: visible;
+}
+
+.logo-container {
+  flex-shrink: 0;
+  height: 100px;
+  width: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-img {
+  max-height: 90px;
+  max-width: 90px;
+  width: auto;
+  height: auto;
+  display: block;
+}
+
+.center-text {
+  flex: 1;
+  text-align: center;
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+}
+
+.center-text h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a237e;
+  line-height: 1.2;
+  letter-spacing: 1px;
+}
+
+.center-text .sub {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+  color: #22223b;
+  line-height: 1.2;
+}
+
+.center-text .desc {
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0;
+  color: #444;
+  line-height: 1.1;
+}
+
+.center-text .address {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0;
+  color: #1a237e;
+  line-height: 1.1;
+}
