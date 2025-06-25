@@ -59,7 +59,11 @@ export default function AdminStatisticsPage() {
                 cx="50%"
                 cy="50%"
                 outerRadius={100}
-                label={({ name, percent }) => `${name} (${(percent * 100).toFixed(1)}%)`}
+                label={({ name, percent }) => {
+                  const pct = percent ?? 0;
+                  return `${name} (${(pct * 100).toFixed(1)}%)`;
+                }}
+
               >
                 {pieData.map((_, idx) => (
                   <Cell key={`cell-${idx}`} fill={COLORS[idx % COLORS.length]} />
@@ -106,7 +110,7 @@ export default function AdminStatisticsPage() {
                 <td style={{ padding: '0.5rem', color: COLORS[idx % COLORS.length], fontWeight: 600 }}>{course.course_name}</td>
                 <td style={{ padding: '0.5rem', textAlign: 'right' }}>{course.total}</td>
                 <td style={{ padding: '0.5rem', textAlign: 'right' }}>
-                  {totalSelections === 0 ? '0.0%' : ((course.total / totalSelections) * 100).toFixed(1) + '%'}
+                  {totalSelections === 0 ? '0.0%' : `${((course.total / totalSelections) * 100).toFixed(1)}%`}
                 </td>
               </tr>
             ))}
