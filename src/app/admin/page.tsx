@@ -1,296 +1,130 @@
-  'use client';
-  import { useEffect, useState } from 'react';
-  import styles from './admin.module.css';
+'use client';
+import { useState, useEffect } from 'react';
 
-  type Candidate = {
-    id: number;
-    full_name: string;
-    category: string;
-    exam_rank: number;
-    preferences: string;
-    allocated_course?: string;
-    application_status: 'draft' | 'submitted';
-  };
+export default function AdminDashboard() {
+  const [stats, setStats] = useState({
+    totalCandidates: 0,
+    allocatedSeats: 0,
+    availableSeats: 0,
+    pendingApplications: 0
+  });
 
-  type Course = {
-    id: number;
-    course_name: string;
-    total_seats: number;
-    available_seats: number;
-  };
-
-  type SystemSettings = {
-    registrations_locked: boolean;
-    results_published: boolean;
-  };
-
-  type AllocationResult = {
-    success: boolean;
-    error?: string;
-    message?: string;
-  } | null;
-
-  export default function AdminDashboard() {
-    const [candidates, setCandidates] = useState<Candidate[]>([]);
-    const [courses, setCourses] = useState<Course[]>([]);
-    const [allocating, setAllocating] = useState(false);
-    const [allocationResult, setAllocationResult] = useState<AllocationResult>(null);
-    const [settings, setSettings] = useState<SystemSettings>({
-      registrations_locked: false,
-      results_published: false
-    });
-    const [sortConfig, setSortConfig] = useState<{ key: keyof Candidate; direction: 'asc' | 'desc' } | null>(null);
-    const [categoryFilter, setCategoryFilter] = useState<string>('all');
-
-    useEffect(() => {
-      const fetchData = async () => {
-        try {
-          const [dataRes, settingsRes] = await Promise.all([
-            fetch('/api/admin/data'),
-            fetch('/api/system-settings')
-          ]);
-          
-          const data = await dataRes.json();
-          const settingsData = await settingsRes.json();
-          
-          setCandidates(data.candidates);
-          setCourses(data.courses);
-          setSettings(settingsData);
-        } catch (error) {
-          console.error('Failed to fetch data:', error);
-        }
-      };
-      fetchData();
-    }, []);
-
-    // Sorting logic
-    const sortedCandidates = [...candidates].sort((a: Candidate, b: Candidate) => {
-      if (!sortConfig) return 0;
-      const { key, direction } = sortConfig;
-      
-      const aValue = a[key];
-      const bValue = b[key];
-
-      if (typeof aValue === 'string' && typeof bValue === 'string') {
-        return direction === 'asc' 
-          ? aValue.localeCompare(bValue)
-          : bValue.localeCompare(aValue);
-      }
-
-      if (typeof aValue === 'number' && typeof bValue === 'number') {
-        return direction === 'asc' ? aValue - bValue : bValue - aValue;
-      }
-
-      return 0;
-    });
-
-    // Filtering logic
-    const filteredCandidates = sortedCandidates.filter(candidate => 
-      categoryFilter === 'all' || candidate.category === categoryFilter
-    );
-
-    const handleSort = (key: keyof Candidate) => {
-      let direction: 'asc' | 'desc' = 'asc';
-      if (sortConfig?.key === key && sortConfig.direction === 'asc') {
-        direction = 'desc';
-      }
-      setSortConfig({ key, direction });
-    };
-
-    const handleAllocate = async () => {
-      setAllocating(true);
+  useEffect(() => {
+    // Fetch dashboard stats
+    const fetchStats = async () => {
       try {
-        const res = await fetch('/api/admin/allocate', { method: 'POST' });
+        const res = await fetch('/api/admin/dashboard-stats');
         const data = await res.json();
-        setAllocationResult(data);
-        
         if (data.success) {
-          const [dataRes, settingsRes] = await Promise.all([
-            fetch('/api/admin/data'),
-            fetch('/api/system-settings')
-          ]);
-          const newData = await dataRes.json();
-          const newSettings = await settingsRes.json();
-          setCandidates(newData.candidates);
-          setCourses(newData.courses);
-          setSettings(newSettings);
+          setStats(data.stats);
         }
-      } finally {
-        setAllocating(false);
-      }
-    };
-
-    const handleLockRegistrations = async (lock: boolean) => {
-      try {
-        await fetch('/api/admin/lock-registrations', {
-          method: 'POST',
-          body: JSON.stringify({ lock }),
-          headers: { 'Content-Type': 'application/json' }
-        });
-        setSettings(prev => ({ ...prev, registrations_locked: lock }));
       } catch (error) {
-        console.error('Failed to update registration lock:', error);
+        console.error('Failed to fetch stats');
       }
     };
+    fetchStats();
+  }, []);
 
-    const handlePublishResults = async (publish: boolean) => {
-      try {
-        await fetch('/api/admin/publish', {
-          method: 'POST',
-          body: JSON.stringify({ publish }),
-          headers: { 'Content-Type': 'application/json' }
-        });
-        setSettings(prev => ({ ...prev, results_published: publish }));
-      } catch (error) {
-        console.error('Failed to update publication status:', error);
-      }
-    };
+  return (
+    <div>
+      <div style={{ marginBottom: '2rem' }}>
+        <h1 style={{ fontSize: '2rem', fontWeight: 700, color: '#1e293b', margin: 0 }}>
+          Admin Dashboard
+        </h1>
+        <p style={{ color: '#64748b', margin: '0.5rem 0 0 0' }}>
+          Welcome to ISTC Seat Allocation Management System
+        </p>
+      </div>
 
-    return (
-      <div className={styles.adminContainer}>
-        <h1 className={styles.sectionTitle}>ISTC Seat Allocation Admin</h1>
-        
-        {/* Action Bar */}
-        <div className={styles.actionBar}>
-          <button
-            className={styles.actionButton}
-            onClick={handleAllocate}
-            disabled={allocating || settings.results_published}
-          >
-            {allocating ? 'Allocating...' : 'Run Seat Allocation'}
-          </button>
+      {/* Quick Stats Cards */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+        gap: '1.5rem',
+        marginBottom: '2rem'
+      }}>
+        <StatCard 
+          title="Total Candidates" 
+          value={stats.totalCandidates} 
+          icon="👥" 
+          color="#3b82f6" 
+        />
+        <StatCard 
+          title="Allocated Seats" 
+          value={stats.allocatedSeats} 
+          icon="✅" 
+          color="#10b981" 
+        />
+        <StatCard 
+          title="Available Seats" 
+          value={stats.availableSeats} 
+          icon="📋" 
+          color="#f59e0b" 
+        />
+        <StatCard 
+          title="Pending Applications" 
+          value={stats.pendingApplications} 
+          icon="⏳" 
+          color="#ef4444" 
+        />
+      </div>
 
-          <button
-            className={styles.actionButton}
-            onClick={() => handleLockRegistrations(!settings.registrations_locked)}
-          >
-            {settings.registrations_locked ? 'Unlock Registrations' : 'Lock Registrations'}
-          </button>
-
-          <button
-            className={styles.actionButton}
-            onClick={() => handlePublishResults(!settings.results_published)}
-            disabled={!settings.registrations_locked}
-          >
-            {settings.results_published ? 'Unpublish Results' : 'Publish Results'}
-          </button>
-
-          <button
-            className={styles.actionButton}
-            onClick={() => window.open('/api/admin/export/candidates', '_blank')}
-          >
-            Export Candidates
-          </button>
-        </div>
-
-        {/* System Status */}
-        <div className={styles.statusBar}>
-          <div className={styles.statusItem}>
-            <span className={styles.statusLabel}>Registrations:</span>
-            <span className={settings.registrations_locked ? styles.statusBadgeRed : styles.statusBadgeGreen}>
-              {settings.registrations_locked ? 'Locked' : 'Open'}
-            </span>
-          </div>
-          <div className={styles.statusItem}>
-            <span className={styles.statusLabel}>Results:</span>
-            <span className={settings.results_published ? styles.statusBadgeGreen : styles.statusBadgeRed}>
-              {settings.results_published ? 'Published' : 'Not Published'}
-            </span>
-          </div>
-        </div>
-
-        {/* Allocation Status */}
-        {allocationResult && (
-          <div className={allocationResult.success ? styles.statusSuccess : styles.statusError}>
-            {allocationResult.success ? allocationResult.message : allocationResult.error}
-          </div>
-        )}
-
-        {/* Seat Matrix */}
-        <div className={styles.dataCard}>
-          <h2 className={styles.sectionTitle}>Seat Availability</h2>
-          <div className={styles.gridContainer}>
-            {courses.map((course) => (
-              <div key={course.id} className={styles.courseCard}>
-                <h4 className={styles.courseTitle}>{course.course_name}</h4>
-                <div className={styles.seatInfo}>
-                  <div className={styles.seatStat}>
-                    <span className={styles.seatLabel}>Total:</span>
-                    <span className={styles.seatValue}>{course.total_seats}</span>
-                  </div>
-                  <div className={styles.seatStat}>
-                    <span className={styles.seatLabel}>Available:</span>
-                    <span className={styles.seatValue}>{course.available_seats}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Candidates Table */}
-        <div className={styles.dataCard}>
-          <div className={styles.tableHeader}>
-            <h2 className={styles.sectionTitle}>Candidate List</h2>
-            <div className={styles.filterGroup}>
-              <label className={styles.filterLabel}>Filter by Category:</label>
-              <select
-                className={styles.filterSelect}
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-              >
-                <option value="all">All Categories</option>
-                <option value="General">General</option>
-                <option value="SC">SC</option>
-                <option value="ST">ST</option>
-                <option value="OBC">OBC</option>
-                <option value="EWS">EWS</option>
-              </select>
-            </div>
-          </div>
-
-          <div className={styles.tableWrapper}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th onClick={() => handleSort('full_name')}>
-                    Name {sortConfig?.key === 'full_name' && (
-                      sortConfig.direction === 'asc' ? '↑' : '↓'
-                    )}
-                  </th>
-                  <th onClick={() => handleSort('exam_rank')}>
-                    Rank {sortConfig?.key === 'exam_rank' && (
-                      sortConfig.direction === 'asc' ? '↑' : '↓'
-                    )}
-                  </th>
-                  <th>Preferences</th>
-                  <th>Category</th>
-                  <th>Status</th>
-                  <th>Allocated Course</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredCandidates.map((candidate) => (
-                  <tr key={candidate.id}>
-                    <td>{candidate.full_name}</td>
-                    <td>{candidate.exam_rank}</td>
-                    <td>{candidate.preferences}</td>
-                    <td>{candidate.category}</td>
-                    <td>
-                      <span className={candidate.application_status === 'submitted' 
-                        ? styles.statusSubmitted 
-                        : styles.statusDraft
-                      }>
-                        {candidate.application_status}
-                      </span>
-                    </td>
-                    <td>{candidate.allocated_course || 'Not allocated'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+      {/* Quick Actions */}
+      <div style={{
+        background: '#fff',
+        borderRadius: '8px',
+        padding: '2rem',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+      }}>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '1rem' }}>
+          Quick Actions
+        </h2>
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <ActionButton href="/admin/seat-allocation" text="Run Allocation" />
+          <ActionButton href="/admin/statistics" text="View Statistics" />
+          <ActionButton href="/admin/user-management" text="Upload Users" />
+          <ActionButton href="/admin/system-settings" text="System Settings" />
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
+
+function StatCard({ title, value, icon, color }: any) {
+  return (
+    <div style={{
+      background: '#fff',
+      padding: '1.5rem',
+      borderRadius: '8px',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+      borderLeft: `4px solid ${color}`
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <div style={{ fontSize: '2rem', fontWeight: 700, color }}>{value}</div>
+          <div style={{ fontSize: '1rem', color: '#6b7280' }}>{title}</div>
+        </div>
+        <div style={{ fontSize: '2rem' }}>{icon}</div>
+      </div>
+    </div>
+  );
+}
+
+function ActionButton({ href, text }: any) {
+  return (
+    <a
+      href={href}
+      style={{
+        padding: '0.75rem 1.5rem',
+        background: '#1e40af',
+        color: 'white',
+        textDecoration: 'none',
+        borderRadius: '6px',
+        fontWeight: 500,
+        transition: 'background-color 0.2s'
+      }}
+    >
+      {text}
+    </a>
+  );
+}
