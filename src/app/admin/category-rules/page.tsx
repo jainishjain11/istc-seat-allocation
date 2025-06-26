@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 
 export default function CategoryRulesPage() {
   const [rules, setRules] = useState({
-    general: 0,
     sc: 0,
     st: 0,
     obc: 0,
@@ -18,7 +17,12 @@ export default function CategoryRulesPage() {
         const res = await fetch('/api/admin/category-rules');
         const data = await res.json();
         if (data.success && data.rules) {
-          setRules(data.rules);
+          setRules({
+            sc: data.rules.sc || 0,
+            st: data.rules.st || 0,
+            obc: data.rules.obc || 0,
+            ews: data.rules.ews || 0
+          });
         }
       } catch (error) {
         console.error('Failed to fetch category rules');
@@ -37,11 +41,25 @@ export default function CategoryRulesPage() {
   const saveRules = async () => {
     try {
       setSaveStatus('Saving...');
+      
+      // Calculate general percentage automatically
+      const reservedTotal = rules.sc + rules.st + rules.obc + rules.ews;
+      const generalPercentage = 100 - reservedTotal;
+      
+      const completeRules = {
+        general: generalPercentage,
+        sc: rules.sc,
+        st: rules.st,
+        obc: rules.obc,
+        ews: rules.ews
+      };
+      
       const res = await fetch('/api/admin/category-rules', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(rules)
+        body: JSON.stringify(completeRules)
       });
+      
       const data = await res.json();
       if (data.success) {
         setSaveStatus('Rules saved successfully!');
@@ -54,7 +72,8 @@ export default function CategoryRulesPage() {
     }
   };
 
-  const totalPercentage = rules.general + rules.sc + rules.st + rules.obc + rules.ews;
+  const reservedTotal = rules.sc + rules.st + rules.obc + rules.ews;
+  const generalPercentage = 100 - reservedTotal;
 
   // Style objects
   const containerStyle = {
@@ -108,19 +127,24 @@ export default function CategoryRulesPage() {
     color: '#334155'
   };
 
+  const inputGroupStyle = {
+    marginBottom: '2rem' // Added spacing between input groups
+  };
+
   const saveButtonStyle = {
-    background: '#1e40af',
+    background: reservedTotal > 100 ? '#9ca3af' : '#1e40af',
     color: '#fff',
     fontWeight: 600,
     fontSize: '1.1rem',
     borderRadius: '0.5rem',
     padding: '1rem 2rem',
     border: 'none',
-    cursor: 'pointer',
+    cursor: reservedTotal > 100 ? 'not-allowed' : 'pointer',
     transition: 'background 0.2s',
     width: '100%',
     maxWidth: '300px',
-    margin: '1.5rem auto 0'
+    margin: '1.5rem auto 0',
+    display: 'block'
   };
 
   const statusStyle = {
@@ -130,6 +154,15 @@ export default function CategoryRulesPage() {
     fontWeight: 500,
     background: saveStatus.includes('Error') ? '#fee2e2' : '#dcfce7',
     color: saveStatus.includes('Error') ? '#b91c1c' : '#166534',
+    textAlign: 'center' as const
+  };
+
+  const generalInfoStyle = {
+    background: '#f0f9ff',
+    border: '1px solid #e0f2fe',
+    borderRadius: '0.75rem',
+    padding: '1.5rem',
+    marginBottom: '2rem',
     textAlign: 'center' as const
   };
 
@@ -146,106 +179,116 @@ export default function CategoryRulesPage() {
     <div style={containerStyle}>
       <h1 style={titleStyle}>Category Allocation Rules</h1>
       <p style={subtitleStyle}>
-        Set reservation percentages for each category
+        Set reservation percentages for each category. General seats will be calculated automatically.
       </p>
 
       <div style={cardStyle}>
         <h2 style={sectionTitleStyle}>Reservation Percentages</h2>
         
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
-          <div>
-            <label style={labelStyle}>General (%)</label>
-            <input
-              type="number"
-              name="general"
-              value={rules.general}
-              onChange={handleChange}
-              min="0"
-              max="100"
-              style={inputStyle}
-            />
+        {/* General Category Info */}
+        <div style={generalInfoStyle}>
+          <div style={{ fontSize: '1.1rem', fontWeight: 600, color: '#0369a1' }}>
+            General Category: {generalPercentage}% (Calculated Automatically)
           </div>
-          
-          <div>
-            <label style={labelStyle}>SC (%)</label>
-            <input
-              type="number"
-              name="sc"
-              value={rules.sc}
-              onChange={handleChange}
-              min="0"
-              max="100"
-              style={inputStyle}
-            />
-          </div>
-          
-          <div>
-            <label style={labelStyle}>ST (%)</label>
-            <input
-              type="number"
-              name="st"
-              value={rules.st}
-              onChange={handleChange}
-              min="0"
-              max="100"
-              style={inputStyle}
-            />
-          </div>
-          
-          <div>
-            <label style={labelStyle}>OBC (%)</label>
-            <input
-              type="number"
-              name="obc"
-              value={rules.obc}
-              onChange={handleChange}
-              min="0"
-              max="100"
-              style={inputStyle}
-            />
-          </div>
-          
-          <div>
-            <label style={labelStyle}>EWS (%)</label>
-            <input
-              type="number"
-              name="ews"
-              value={rules.ews}
-              onChange={handleChange}
-              min="0"
-              max="100"
-              style={inputStyle}
-            />
+          <div style={{ fontSize: '0.9rem', color: '#0369a1', marginTop: '0.5rem' }}>
+            General seats = 100% - (Reserved category percentages)
           </div>
         </div>
         
-        <div style={{ 
-          marginTop: '2rem', 
-          padding: '1.5rem', 
-          background: '#f3f4f6', 
-          borderRadius: '0.75rem',
-          textAlign: 'center'
-        }}>
-          <div style={{ fontSize: '1.2rem', fontWeight: 600, color: '#1e40af' }}>
-            Total Percentage: {totalPercentage}%
-          </div>
+        <div
+  style={{
+    display: 'grid',
+    gridTemplateColumns: 'repeat(4, 1fr)',
+    gap: '2rem', // Adds space between boxes
+    marginBottom: '2rem',
+    width: '100%',
+  }}
+>
+  <div>
+    <label style={labelStyle}>SC (%)</label>
+    <input
+      type="number"
+      name="sc"
+      value={rules.sc}
+      onChange={handleChange}
+      min="0"
+      max="50"
+      style={{
+        ...inputStyle,
+        width: '100%',
+        boxSizing: 'border-box',
+      }}
+    />
+  </div>
+  <div>
+    <label style={labelStyle}>ST (%)</label>
+    <input
+      type="number"
+      name="st"
+      value={rules.st}
+      onChange={handleChange}
+      min="0"
+      max="50"
+      style={{
+        ...inputStyle,
+        width: '100%',
+        boxSizing: 'border-box',
+      }}
+    />
+  </div>
+  <div>
+    <label style={labelStyle}>OBC (%)</label>
+    <input
+      type="number"
+      name="obc"
+      value={rules.obc}
+      onChange={handleChange}
+      min="0"
+      max="50"
+      style={{
+        ...inputStyle,
+        width: '100%',
+        boxSizing: 'border-box',
+      }}
+    />
+  </div>
+  <div>
+    <label style={labelStyle}>EWS (%)</label>
+    <input
+      type="number"
+      name="ews"
+      value={rules.ews}
+      onChange={handleChange}
+      min="0"
+      max="50"
+      style={{
+        ...inputStyle,
+        width: '100%',
+        boxSizing: 'border-box',
+      }}
+    />
+  </div>
+</div>
+
+        
+        {/* Warning for over 100% */}
+        {reservedTotal > 100 && (
           <div style={{ 
-            marginTop: '0.5rem',
-            color: totalPercentage === 100 ? '#166534' : totalPercentage > 100 ? '#b91c1c' : '#ca8a04',
-            fontWeight: 500
+            background: '#fee2e2', 
+            color: '#b91c1c', 
+            padding: '1rem', 
+            borderRadius: '0.5rem',
+            marginBottom: '1rem',
+            textAlign: 'center'
           }}>
-            {totalPercentage === 100 
-              ? 'Perfect! Total is 100%' 
-              : totalPercentage > 100 
-                ? 'Error: Total exceeds 100%' 
-                : `Warning: Total should be 100% (${100 - totalPercentage}% remaining)`}
+            Warning: Reserved percentages exceed 100%. Please adjust the values.
           </div>
-        </div>
+        )}
         
         <button 
           onClick={saveRules}
           style={saveButtonStyle}
-          disabled={totalPercentage !== 100}
+          disabled={reservedTotal > 100}
         >
           Save Rules
         </button>
