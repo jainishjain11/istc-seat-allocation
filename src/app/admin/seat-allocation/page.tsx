@@ -49,59 +49,160 @@ export default function SeatAllocationPage() {
     }
   };
 
+  // Style objects
+  const containerStyle = {
+    maxWidth: '1200px',
+    margin: '0 auto',
+    padding: '2rem'
+  };
+
+  const titleStyle = {
+    fontSize: '2.2rem',
+    fontWeight: 700,
+    color: '#1e293b',
+    marginBottom: '0.25rem'
+  };
+
+  const subtitleStyle = {
+    color: '#64748b',
+    marginBottom: '2rem',
+    fontSize: '1.15rem'
+  };
+
+  const cardStyle = {
+    background: '#fff',
+    borderRadius: '1rem',
+    boxShadow: '0 4px 16px rgba(30,64,175,0.09)',
+    padding: '2rem 1.5rem',
+    marginBottom: '2rem'
+  };
+
+  const sectionTitleStyle = {
+    fontSize: '1.4rem',
+    fontWeight: 600,
+    color: '#1e40af',
+    marginBottom: '1.5rem',
+    paddingBottom: '0.75rem',
+    borderBottom: '1px solid #e5e7eb'
+  };
+
+  const actionButtonStyle = (color: string, disabled: boolean) => ({
+    background: disabled ? '#9ca3af' : color,
+    color: '#fff',
+    fontWeight: 600,
+    fontSize: '1.1rem',
+    borderRadius: '0.5rem',
+    padding: '0.9rem 2.2rem',
+    border: 'none',
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    transition: 'all 0.2s',
+    boxShadow: '0 2px 8px rgba(30,64,175,0.07)',
+    display: 'inline-block',
+    width: '100%',
+    maxWidth: '300px',
+    opacity: disabled ? 0.7 : 1
+  });
+
+  const statusMessageStyle = (isError: boolean) => ({
+    padding: '0.75rem 1rem',
+    borderRadius: '0.5rem',
+    marginTop: '1rem',
+    fontWeight: 500,
+    background: isError ? '#fee2e2' : '#dcfce7',
+    color: isError ? '#b91c1c' : '#166534'
+  });
+
   return (
-    <div className="admin-container">
-      <h1 className="admin-title">Seat Allocation Management</h1>
-      
-      <div className="action-section">
-        <div className="action-card">
-          <h2 className="section-title">Run Allocation</h2>
-          <p className="section-description">
-            Execute the seat allocation algorithm to assign seats to candidates
+    <div style={containerStyle}>
+      <h1 style={titleStyle}>Seat Allocation Management</h1>
+      <p style={subtitleStyle}>
+        Manage candidate allocations and publish results to students
+      </p>
+
+      {/* Action Buttons Section */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+        gap: '2rem',
+        marginBottom: '2rem'
+      }}>
+        <div style={cardStyle}>
+          <h2 style={sectionTitleStyle}>Run Allocation</h2>
+          <p style={{ color: '#64748b', marginBottom: '1.5rem', lineHeight: '1.6' }}>
+            Execute the seat allocation algorithm to assign seats to candidates based on their preferences and ranks.
           </p>
           <button
             onClick={runAllocation}
             disabled={isAllocating}
-            className={`action-button ${isAllocating ? 'bg-gray-400' : 'bg-blue-600'}`}
+            style={actionButtonStyle('#1e40af', isAllocating)}
           >
-            {isAllocating ? 'Processing...' : 'Run Seat Allocation'}
+            {isAllocating ? (
+              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ marginRight: '0.5rem' }}>Processing...</span>
+                <span className="spinner"></span>
+              </span>
+            ) : 'Run Seat Allocation'}
           </button>
           {allocationStatus && (
-            <div className={`status-message ${allocationStatus.includes('Error') ? 'error' : 'success'}`}>
+            <div style={statusMessageStyle(allocationStatus.includes('Error'))}>
               {allocationStatus}
             </div>
           )}
         </div>
         
-        <div className="action-card">
-          <h2 className="section-title">Publish Results</h2>
-          <p className="section-description">
-            Make allocation results visible to candidates
+        <div style={cardStyle}>
+          <h2 style={sectionTitleStyle}>Publish Results</h2>
+          <p style={{ color: '#64748b', marginBottom: '1.5rem', lineHeight: '1.6' }}>
+            Make allocation results visible to candidates after allocation is complete.
           </p>
           <button
             onClick={publishResults}
             disabled={isPublishing}
-            className={`action-button ${isPublishing ? 'bg-gray-400' : 'bg-green-600'}`}
+            style={actionButtonStyle('#10b981', isPublishing)}
           >
-            {isPublishing ? 'Publishing...' : 'Publish Results'}
+            {isPublishing ? (
+              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ marginRight: '0.5rem' }}>Publishing...</span>
+                <span className="spinner"></span>
+              </span>
+            ) : 'Publish Results'}
           </button>
           {publicationStatus && (
-            <div className={`status-message ${publicationStatus.includes('Error') ? 'error' : 'success'}`}>
+            <div style={statusMessageStyle(publicationStatus.includes('Error'))}>
               {publicationStatus}
             </div>
           )}
         </div>
       </div>
-      
-      <div className="seat-matrix-section">
-        <h2 className="section-title">Seat Availability</h2>
+
+      {/* Seat Matrix Section */}
+      <div style={cardStyle}>
+        <h2 style={sectionTitleStyle}>Seat Availability</h2>
         <SeatMatrix />
       </div>
       
-      <div className="candidate-section">
-        <h2 className="section-title">Candidate Allocation Status</h2>
+      {/* Candidate Table Section */}
+      <div style={cardStyle}>
+        <h2 style={sectionTitleStyle}>Candidate Allocation Status</h2>
         <CandidateTable />
       </div>
+
+      {/* Spinner CSS */}
+      <style jsx>{`
+        .spinner {
+          display: inline-block;
+          width: 1rem;
+          height: 1rem;
+          border: 2px solid rgba(255,255,255,0.3);
+          border-radius: 50%;
+          border-top-color: white;
+          animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }
