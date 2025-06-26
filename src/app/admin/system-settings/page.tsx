@@ -242,3 +242,4 @@ const fileInputStyle = {
   borderRadius: '0.5rem',
   fontSize: '1rem'
 };
+  
