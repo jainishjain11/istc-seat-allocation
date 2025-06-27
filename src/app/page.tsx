@@ -59,7 +59,7 @@ export default function SplashScreen() {
             marginBottom: '1rem',
           }}
         >
-          INDO Swiss Training Centre
+          Indo Swiss Training Centre
         </h1>
         <h2
           style={{
