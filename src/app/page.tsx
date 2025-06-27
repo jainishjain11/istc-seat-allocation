@@ -85,18 +85,7 @@ export default function SplashScreen() {
         >
           Official Portal for Diploma Courses Allotment
         </div>
-        <div
-          style={{
-            color: '#38bdf8',
-            fontWeight: 600,
-            fontSize: '1rem',
-            marginBottom: '2rem',
-            textShadow: '0 4px 24px rgba(0,0,0,0.85)',
-            letterSpacing: '0.03em',
-          }}
-        >
-          A Government of India Institute
-        </div>
+    
         <div
           style={{
             color: '#fff',
