@@ -1,3 +1,4 @@
+// src/app/page.tsx
 'use client';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -15,8 +16,8 @@ export default function SplashScreen() {
   return (
     <div
       style={{
-        height: '100%',
-        width: '100%',
+        height: 'calc(100vh - 124px)', // Accounts for header height
+        width: '100vw',
         backgroundImage: 'url("/images/istc1.jpg")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
@@ -58,7 +59,7 @@ export default function SplashScreen() {
             marginBottom: '1rem',
           }}
         >
-          Indo Swiss Training Centre
+          INDO Swiss Training Centre
         </h1>
         <h2
           style={{
@@ -84,7 +85,18 @@ export default function SplashScreen() {
         >
           Official Portal for Diploma Courses Allotment
         </div>
-      
+        <div
+          style={{
+            color: '#38bdf8',
+            fontWeight: 600,
+            fontSize: '1rem',
+            marginBottom: '2rem',
+            textShadow: '0 4px 24px rgba(0,0,0,0.85)',
+            letterSpacing: '0.03em',
+          }}
+        >
+          A Government of India Institute
+        </div>
         <div
           style={{
             color: '#fff',
