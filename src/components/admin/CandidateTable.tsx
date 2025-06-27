@@ -1,4 +1,3 @@
-// src/components/admin/CandidateTable.tsx
 'use client';
 import { useState, useEffect } from 'react';
 
@@ -14,6 +13,7 @@ interface Candidate {
 export default function CandidateTable() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
@@ -21,13 +21,26 @@ export default function CandidateTable() {
   useEffect(() => {
     const fetchCandidates = async () => {
       try {
+        setLoading(true);
+        setError('');
+        
         const res = await fetch('/api/admin/candidates');
-        const data = await res.json();
-        if (data.success) {
-          setCandidates(data.candidates);
+        
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
         }
-      } catch (error) {
-        console.error('Failed to fetch candidates');
+        
+        const data = await res.json();
+        
+        if (data.success) {
+          setCandidates(data.candidates || []);
+        } else {
+          throw new Error(data.error || 'Failed to fetch candidates');
+        }
+      } catch (error: any) {
+        console.error('Failed to fetch candidates:', error);
+        setError(error.message || 'Failed to load candidates');
+        setCandidates([]);
       } finally {
         setLoading(false);
       }
@@ -65,56 +78,117 @@ export default function CandidateTable() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '200px',
+        background: '#fff',
+        borderRadius: '0.5rem',
+        border: '1px solid #e5e7eb'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ 
+            width: '40px', 
+            height: '40px', 
+            border: '4px solid #f3f4f6',
+            borderTop: '4px solid #3b82f6',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 1rem'
+          }}></div>
+          <p style={{ color: '#6b7280' }}>Loading candidates...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{
+        background: '#fee2e2',
+        border: '1px solid #fca5a5',
+        borderRadius: '0.5rem',
+        padding: '1rem',
+        textAlign: 'center'
+      }}>
+        <div style={{ color: '#dc2626', fontWeight: 600, marginBottom: '0.5rem' }}>
+          Error Loading Candidates
+        </div>
+        <div style={{ color: '#7f1d1d', fontSize: '0.875rem' }}>
+          {error}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="candidate-table-container">
+    <div style={{
+      border: '1px solid #e5e7eb',
+      borderRadius: '0.5rem',
+      overflow: 'hidden',
+      background: '#fff'
+    }}>
       {/* Search Bar */}
-      <div className="search-bar">
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '1rem',
+        background: '#f9fafb',
+        borderBottom: '1px solid #e5e7eb'
+      }}>
         <input
           type="text"
           placeholder="Search candidates..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input"
+          style={{
+            padding: '0.5rem 1rem',
+            border: '1px solid #d1d5db',
+            borderRadius: '0.375rem',
+            width: '300px'
+          }}
         />
-        <span className="search-results">
+        <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
           Showing {filteredCandidates.length} of {candidates.length} candidates
         </span>
       </div>
 
       {/* Table */}
-      <div className="table-wrapper">
-        <table className="candidate-table">
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
-            <tr>
-              <th className="text-left">ID</th>
-              <th className="text-left">Name</th>
-              <th className="text-center">Rank</th>
-              <th className="text-center">Category</th>
-              <th className="text-left">Allocated Course</th>
-              <th className="text-center">Status</th>
+            <tr style={{ background: '#f3f4f6' }}>
+              <th style={{ textAlign: 'left', padding: '0.75rem 1rem', fontWeight: 600, color: '#374151' }}>ID</th>
+              <th style={{ textAlign: 'left', padding: '0.75rem 1rem', fontWeight: 600, color: '#374151' }}>Name</th>
+              <th style={{ textAlign: 'center', padding: '0.75rem 1rem', fontWeight: 600, color: '#374151' }}>Rank</th>
+              <th style={{ textAlign: 'center', padding: '0.75rem 1rem', fontWeight: 600, color: '#374151' }}>Category</th>
+              <th style={{ textAlign: 'left', padding: '0.75rem 1rem', fontWeight: 600, color: '#374151' }}>Allocated Course</th>
+              <th style={{ textAlign: 'center', padding: '0.75rem 1rem', fontWeight: 600, color: '#374151' }}>Status</th>
             </tr>
           </thead>
           <tbody>
             {currentCandidates.length > 0 ? (
               currentCandidates.map((candidate) => (
-                <tr key={candidate.id}>
-                  <td className="font-medium">#{candidate.id}</td>
-                  <td>{candidate.full_name}</td>
-                  <td className="text-center">{candidate.exam_rank}</td>
-                  <td className="text-center">{candidate.category}</td>
-                  <td>
+                <tr key={candidate.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
+                  <td style={{ padding: '1rem', fontWeight: 500 }}>#{candidate.id}</td>
+                  <td style={{ padding: '1rem' }}>{candidate.full_name}</td>
+                  <td style={{ padding: '1rem', textAlign: 'center' }}>{candidate.exam_rank}</td>
+                  <td style={{ padding: '1rem', textAlign: 'center' }}>{candidate.category}</td>
+                  <td style={{ padding: '1rem' }}>
                     {candidate.allocated_course || (
-                      <span className="text-gray-400">Not allocated</span>
+                      <span style={{ color: '#9ca3af' }}>Not allocated</span>
                     )}
                   </td>
-                  <td className="text-center">
-                    <span className={`status-badge ${getStatusColor(candidate.allocation_status)}`}>
+                  <td style={{ padding: '1rem', textAlign: 'center' }}>
+                    <span style={{
+                      padding: '0.25rem 0.75rem',
+                      borderRadius: '9999px',
+                      fontSize: '0.75rem',
+                      fontWeight: 500,
+                      ...getStatusColors(candidate.allocation_status)
+                    }}>
                       {candidate.allocation_status}
                     </span>
                   </td>
@@ -122,7 +196,7 @@ export default function CandidateTable() {
               ))
             ) : (
               <tr>
-                <td colSpan={6} className="text-center py-6 text-gray-500">
+                <td colSpan={6} style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
                   No candidates found
                 </td>
               </tr>
@@ -133,11 +207,23 @@ export default function CandidateTable() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="pagination">
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          padding: '1rem',
+          borderTop: '1px solid #e5e7eb'
+        }}>
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="pagination-button"
+            style={{
+              padding: '0.5rem 1rem',
+              margin: '0 0.25rem',
+              border: '1px solid #d1d5db',
+              borderRadius: '0.375rem',
+              background: currentPage === 1 ? '#f3f4f6' : 'white',
+              cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
+            }}
           >
             Previous
           </button>
@@ -146,7 +232,15 @@ export default function CandidateTable() {
             <button
               key={page}
               onClick={() => handlePageChange(page)}
-              className={`pagination-button ${currentPage === page ? 'active' : ''}`}
+              style={{
+                padding: '0.5rem 1rem',
+                margin: '0 0.25rem',
+                border: '1px solid #d1d5db',
+                borderRadius: '0.375rem',
+                background: currentPage === page ? '#3b82f6' : 'white',
+                color: currentPage === page ? 'white' : '#374151',
+                cursor: 'pointer'
+              }}
             >
               {page}
             </button>
@@ -155,12 +249,40 @@ export default function CandidateTable() {
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="pagination-button"
+            style={{
+              padding: '0.5rem 1rem',
+              margin: '0 0.25rem',
+              border: '1px solid #d1d5db',
+              borderRadius: '0.375rem',
+              background: currentPage === totalPages ? '#f3f4f6' : 'white',
+              cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
+            }}
           >
             Next
           </button>
         </div>
       )}
+
+      {/* Loading Animation CSS */}
+      <style jsx>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
+}
+
+function getStatusColors(status: string) {
+  switch (status) {
+    case 'Allocated': 
+      return { backgroundColor: '#dcfce7', color: '#166534' };
+    case 'Pending': 
+      return { backgroundColor: '#fef3c7', color: '#92400e' };
+    case 'Not Allocated': 
+      return { backgroundColor: '#fee2e2', color: '#b91c1c' };
+    default: 
+      return { backgroundColor: '#f3f4f6', color: '#374151' };
+  }
 }
