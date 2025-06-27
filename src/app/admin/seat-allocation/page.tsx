@@ -8,6 +8,8 @@ export default function SeatAllocationPage() {
   const [isPublishing, setIsPublishing] = useState(false);
   const [allocationStatus, setAllocationStatus] = useState('');
   const [publicationStatus, setPublicationStatus] = useState('');
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportStatus, setExportStatus] = useState('');
 
   const runAllocation = async () => {
     setIsAllocating(true);
@@ -46,6 +48,35 @@ export default function SeatAllocationPage() {
       setPublicationStatus('Failed to publish results');
     } finally {
       setIsPublishing(false);
+    }
+  };
+
+  const exportCandidates = async () => {
+    setIsExporting(true);
+    setExportStatus('');
+    try {
+      const res = await fetch('/api/admin/export/candidates');
+      
+      if (!res.ok) {
+        throw new Error(`Failed to fetch export data: ${res.statusText}`);
+      }
+      
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `istc_candidates_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      
+      setExportStatus('Candidates exported successfully!');
+      setTimeout(() => setExportStatus(''), 3000);
+    } catch (error: any) {
+      setExportStatus(`Export failed: ${error.message}`);
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -129,7 +160,7 @@ export default function SeatAllocationPage() {
         <div style={cardStyle}>
           <h2 style={sectionTitleStyle}>Run Allocation</h2>
           <p style={{ color: '#64748b', marginBottom: '1.5rem', lineHeight: '1.6' }}>
-            Execute the seat allocation algorithm to assign seats to candidates based on their preferences and ranks.
+            Execute the seat allocation algorithm to assign seats to candidates according to their preferences.
           </p>
           <button
             onClick={runAllocation}
@@ -170,6 +201,30 @@ export default function SeatAllocationPage() {
           {publicationStatus && (
             <div style={statusMessageStyle(publicationStatus.includes('Error'))}>
               {publicationStatus}
+            </div>
+          )}
+        </div>
+
+        <div style={cardStyle}>
+          <h2 style={sectionTitleStyle}>Export Candidates</h2>
+          <p style={{ color: '#64748b', marginBottom: '1.5rem', lineHeight: '1.6' }}>
+            Download the list of allocated candidates with their details in CSV format.
+          </p>
+          <button
+            onClick={exportCandidates}
+            disabled={isExporting}
+            style={actionButtonStyle('#f59e0b', isExporting)}
+          >
+            {isExporting ? (
+              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ marginRight: '0.5rem' }}>Exporting...</span>
+                <span className="spinner"></span>
+              </span>
+            ) : 'Export Candidates'}
+          </button>
+          {exportStatus && (
+            <div style={statusMessageStyle(exportStatus.includes('failed'))}>
+              {exportStatus}
             </div>
           )}
         </div>

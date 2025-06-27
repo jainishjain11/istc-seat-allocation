@@ -1,10 +1,11 @@
+// src/app/api/admin/export/candidates/route.ts
 import { NextResponse } from 'next/server';
 import { Parser } from 'json2csv';
 import pool from '@/lib/db';
 
 export async function GET() {
   try {
-    // Fetch candidate data with allocations
+    // Fetch candidate data with allocations, ordered by exam rank
     const [candidates]: any = await pool.query(`
       SELECT 
         c.id, 
@@ -20,6 +21,7 @@ export async function GET() {
       LEFT JOIN users u ON c.user_id = u.id
       LEFT JOIN seat_allocations sa ON c.id = sa.candidate_id
       LEFT JOIN courses ON sa.allocated_course_id = courses.id
+      ORDER BY c.exam_rank ASC  -- Added ordering by exam rank
     `);
 
     if (candidates.length === 0) {
