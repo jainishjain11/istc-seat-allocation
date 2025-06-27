@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "cross-env": "^7.0.3",
+    "csv-parser": "^3.2.0",
     "docx": "^9.5.1",
     "json2csv": "^6.0.0-alpha.2",
     "mysql2": "^3.14.1",
