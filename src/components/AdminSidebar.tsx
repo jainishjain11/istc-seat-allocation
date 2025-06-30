@@ -43,7 +43,7 @@ const adminMenuItems = [
     title: 'Activity Logs',
     href: '/admin/activity-logs',
     icon: '📝',
-    description: 'Candidate Activity History'
+    description: 'User Activity History'
   }  
 ];
 

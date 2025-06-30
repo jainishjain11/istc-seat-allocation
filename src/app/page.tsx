@@ -1,4 +1,3 @@
-// src/app/page.tsx
 'use client';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -9,7 +8,7 @@ export default function SplashScreen() {
   useEffect(() => {
     const timer = setTimeout(() => {
       router.replace('/login');
-    }, 3000);
+    }, 2000); // Redirect after 2 seconds
     return () => clearTimeout(timer);
   }, [router]);
 
