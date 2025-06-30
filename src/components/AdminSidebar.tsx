@@ -38,7 +38,13 @@ const adminMenuItems = [
     href: '/admin/system-settings',
     icon: '🔧',
     description: 'Reset & Configuration'
-  }
+  },
+  {
+    title: 'Activity Logs',
+    href: '/admin/activity-logs',
+    icon: '📝',
+    description: 'Candidate Activity History'
+  }  
 ];
 
 export default function AdminSidebar() {

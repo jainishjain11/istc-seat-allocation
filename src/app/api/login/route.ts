@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import pool from '@/lib/db';
+import { logActivity } from '@/lib/activityLogger'; // Import activity logger
 
 export async function POST(req: NextRequest) {
   const { email, password } = await req.json();
@@ -23,44 +24,52 @@ export async function POST(req: NextRequest) {
     }
 
     const user = users[0];
+    let response;
 
-    
     // Admin login
     if (user.is_admin) {
       if (trimmedPassword === user.password) {
-        return NextResponse.json({ 
+        // Log admin login activity
+        await logActivity(user.id, 'admin_login', 'Admin logged in', req);
+        
+        response = NextResponse.json({ 
           success: true, 
-          redirect: '/admin',  // Added redirect path
+          redirect: '/admin',
           userId: user.id 
         });
+      } else {
+        response = NextResponse.json({ 
+          success: false, 
+          error: 'Invalid admin credentials.' 
+        }, { status: 401 });
       }
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Invalid admin credentials.' 
-      }, { status: 401 });
     }
-
     // Candidate login
-    if (!user.is_qualified) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'You are not qualified for the exam.' 
-      }, { status: 401 });
+    else {
+      if (!user.is_qualified) {
+        response = NextResponse.json({ 
+          success: false, 
+          error: 'You are not qualified for the exam.' 
+        }, { status: 401 });
+      } 
+      else if (trimmedPassword === user.password) {
+        // Log candidate login activity
+        await logActivity(user.id, 'candidate_login', 'Candidate logged in', req);
+        
+        response = NextResponse.json({ 
+          success: true, 
+          redirect: `/candidate/${user.id}`,
+          userId: user.id 
+        });
+      } else {
+        response = NextResponse.json({ 
+          success: false, 
+          error: 'Invalid credentials.' 
+        }, { status: 401 });
+      }
     }
 
-    if (trimmedPassword === user.password) {
-      return NextResponse.json({ 
-        success: true, 
-        redirect: `/candidate/${user.id}`,  // Added redirect path
-        userId: user.id 
-      });
-    }
-
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Invalid credentials.' 
-    }, { status: 401 });
-
+    return response;
   } catch (error) {
     return NextResponse.json({ 
       success: false, 

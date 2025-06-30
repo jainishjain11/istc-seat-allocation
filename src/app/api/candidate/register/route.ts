@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import pool from '@/lib/db';
+import { logActivity } from '@/lib/activityLogger'; // Import activity logger
 
 export async function POST(request: NextRequest) {
   const connection = await pool.getConnection();
   
   try {
     const body = await request.json();
-    console.log('📨 Full request body received:', body); // Debug log
+    console.log('📨 Full request body received:', body);
+    
     // Extract userId from request body
     const userId = body.userId;
     
@@ -94,6 +96,14 @@ export async function POST(request: NextRequest) {
     }
 
     await connection.commit();
+    
+    // Log registration activity
+    await logActivity(
+      userId, 
+      'registration_completed', 
+      'Candidate completed registration form',
+      request
+    );
     
     return NextResponse.json({ 
       success: true, 
