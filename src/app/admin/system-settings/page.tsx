@@ -244,7 +244,7 @@ export default function SystemSettingsPage() {
           <h3 style={{ fontSize: '1.2rem', fontWeight: 600, color: '#b45309', marginBottom: '1rem' }}>
             ⚠️ Important: System Reset
           </h3>
-          <p style={{ lineHeight: 1.6 }}>
+          <div style={{ lineHeight: 1.6 }}>
             This action will:
             <ul>
               <li>Delete all candidate records</li>
@@ -254,7 +254,7 @@ export default function SystemSettingsPage() {
               <li>Unpublish results</li>
             </ul>
             This action cannot be undone. Please click "Reset System" and enter your admin password to confirm.
-          </p>
+          </div>
         </div>
         
         <button

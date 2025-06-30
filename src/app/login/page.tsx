@@ -21,7 +21,7 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (data.success) {
-        window.location.href = data.user.is_admin ? '/admin' : `/candidate/${data.user.id}`;
+        window.location.href = data.redirect;
       } else {
         setError(data.error || 'Invalid email or password');
       }
@@ -61,6 +61,7 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
                 required
+                // No need to add style here
               />
               <span
                 className="eye-icon"
@@ -115,6 +116,7 @@ export default function LoginPage() {
           align-items: center;
           justify-content: center;
           width: 100%;
+          min-height: 320px; /* Ensure vertical centering */
         }
         .login-form {
           width: 100%;
@@ -131,24 +133,28 @@ export default function LoginPage() {
           text-align: center;
         }
         .login-field {
-          margin-bottom: 1.1rem;
-          display: flex;
-          flex-direction: column;
-          position: relative;
-        }
-        .login-field input[type='email'],
-        .login-field input[type='password'],
-        .login-field input[type='text'] {
-          width: 100%;
-          padding: 12px 16px;
-          font-size: 1rem;
-          border: none;
-          border-radius: 999px;
-          background: #e3edfa;
-          color: #222;
-          outline: none;
-          box-shadow: 0 2px 8px rgba(16, 38, 70, 0.03);
-        }
+  margin-bottom: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  margin-right: 8px; /* Shift the entire field slightly to the right */
+}
+
+.login-field input[type='email'],
+.login-field input[type='password'],
+.login-field input[type='text'] {
+  width: 100%;
+  padding: 14px 18px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 999px;
+  background: #e3edfa;
+  color: #222;
+  outline: none;
+  box-shadow: 0 2px 8px rgba(16, 38, 70, 0.03);
+  margin-right: 8px; /* Optional: tweak input position slightly to match parent */
+}
+
         .login-field input:focus {
           box-shadow: 0 0 0 2px #2563eb33;
         }
@@ -195,6 +201,20 @@ export default function LoginPage() {
           margin-bottom: 1.1rem;
           font-size: 0.98rem;
           text-align: center;
+        }
+        /* Hide browser's default password reveal icon (Edge, Chrome, Safari) */
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear {
+          display: none;
+        }
+        input[type="password"]::-webkit-credentials-auto-fill-button {
+          display: none !important;
+          visibility: hidden !important;
+          pointer-events: none !important;
+          height: 0;
+          width: 0;
+          margin: 0;
+          padding: 0;
         }
         @media (max-width: 700px) {
           .login-container {
