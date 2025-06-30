@@ -5,7 +5,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer
 } from 'recharts';
 
-const COLORS = ['#1e40af', '#fbbf24', '#10b981', '#ef4444', '#6366f1', '#f59e42', '#3b82f6'];
+const COLORS = ['#2563eb', '#facc15', '#34d399', '#f87171'];
 
 export default function AdminStatisticsPage() {
   const [data, setData] = useState<any[]>([]);
@@ -23,26 +23,23 @@ export default function AdminStatisticsPage() {
   if (loading) return <div>Loading statistics...</div>;
   if (!data || data.length === 0) return <div>No data available.</div>;
 
-  // Pie chart data: total selections per course
   const pieData = data.map((course) => ({
     name: course.course_name,
     value: course.total,
   }));
 
-  // Bar chart data: breakdown by preference with shorter names
   const barData = data.map((course) => {
     let shortName = course.course_name;
-    // Replace with shorter, specific names
     if (course.course_name.includes('Die & Mould')) {
-      shortName = 'Die & Mould Making (Adv.)';
+      shortName = 'Die & Mould (Adv.)';
     } else if (course.course_name.includes('Mechatronics')) {
-      shortName = 'Mechatronics & Industrial Automation';
+      shortName = 'Mechatronics';
     } else if (course.course_name.includes('Electronics')) {
-      shortName = 'Electronics Engineering';
+      shortName = 'Electronics';
     } else if (course.course_name.includes('Mechanical')) {
-      shortName = 'Mechanical Engineering (Tool & Die)';
+      shortName = 'Mechanical (Tool & Die)';
     }
-    
+
     return {
       name: shortName,
       '1st Choice': course.preference_1,
@@ -51,91 +48,87 @@ export default function AdminStatisticsPage() {
     };
   });
 
-  // Total selections for percentage calculation
   const totalSelections = data.reduce((sum, c) => sum + c.total, 0);
 
   return (
-    <div>
-      <h1 style={{ fontSize: '2rem', fontWeight: 700, color: '#1e293b', marginBottom: '1.5rem' }}>
-        Candidate Course Preference Statistics
+    <div style={{ padding: '2rem', fontFamily: 'Segoe UI, sans-serif', color: '#1f2937' }}>
+      <h1 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '2rem' }}>
+        📊 Candidate Course Preference Statistics
       </h1>
 
-      {/* Equal-sized chart containers */}
-      <div style={{ 
-        display: 'flex', 
-        gap: '1rem', 
-        marginBottom: '2rem',
-        height: '400px' 
+      <div style={{
+        display: 'flex',
+        gap: '2rem',
+        marginBottom: '2.5rem',
+        flexWrap: 'wrap'
       }}>
-        {/* Pie Chart - 50% width */}
-        <div style={{ 
-          width: '50%',
-          background: '#fff', 
-          borderRadius: 8, 
-          padding: '1.5rem', 
-          boxShadow: '0 1px 3px rgba(0,0,0,0.07)', 
-          position: 'relative',
+        {/* Pie Chart Card */}
+        <div style={{
+          flex: 1,
+          minWidth: 320,
+          background: '#fff',
+          borderRadius: '1rem',
+          padding: '2rem',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
+          position: 'relative',
+          minHeight: 360,
         }}>
-          <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem', color: '#1e40af' }}>
+          <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem', color: '#2563eb' }}>
             Total Preferences (Pie Chart)
           </h2>
 
-          {/* Custom Legend - Top Right */}
-          <div style={{ 
-            position: 'absolute', 
-            top: '3.5rem', 
-            right: '1rem', 
-            zIndex: 10,
+          {/* Legend - top right, smaller, full text */}
+          <div style={{
+            position: 'absolute',
+            top: '2.5rem',
+            right: '1.5rem',
             background: 'rgba(255,255,255,0.95)',
-            padding: '0.75rem',
+            padding: '0.5rem 0.7rem',
             borderRadius: '6px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
             border: '1px solid #e5e7eb',
             fontSize: '0.75rem',
-            maxWidth: '140px'
+            zIndex: 2,
+            minWidth: 90,
+            maxWidth: 180, // allow longer text
           }}>
             {pieData.map((entry, index) => (
-              <div key={entry.name} style={{ 
-                display: 'flex', 
-                alignItems: 'flex-start', 
-                marginBottom: '0.4rem'
+              <div key={entry.name} style={{
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: index === pieData.length - 1 ? 0 : '0.25rem'
               }}>
-                <div style={{ 
-                  width: '10px', 
-                  height: '10px', 
-                  backgroundColor: COLORS[index % COLORS.length], 
-                  marginRight: '0.5rem',
-                  borderRadius: '2px',
-                  marginTop: '2px',
-                  flexShrink: 0
+                <div style={{
+                  width: '8px',
+                  height: '8px',
+                  backgroundColor: COLORS[index % COLORS.length],
+                  marginRight: '0.4rem',
+                  borderRadius: '2px'
                 }}></div>
-                <span style={{ 
-                  color: '#374151', 
+                <span style={{
+                  color: '#374151',
                   fontWeight: 500,
-                  lineHeight: '1.2'
-                }}>
-                  {entry.name}
-                </span>
+                  fontSize: '0.75rem',
+                  whiteSpace: 'normal', // allow wrapping
+                  wordBreak: 'break-word'
+                }}>{entry.name}</span>
               </div>
             ))}
           </div>
 
-          <div style={{ flex: 1 }}>
+          <div style={{ width: '100%', height: 260, marginTop: '0.5rem' }}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={pieData}
                   dataKey="value"
                   nameKey="name"
-                  cx="50%"
+                  cx="42%" // Shift the pie chart left
                   cy="50%"
-                  outerRadius={120}
-                  label={({ percent }) => {
-                    const pct = percent ?? 0;
-                    return `${(pct * 100).toFixed(1)}%`;
-                  }}
+                  outerRadius={90}
+                  label={({ percent = 0 }) => `${(percent * 100).toFixed(1)}%`}
                   labelLine={false}
                 >
                   {pieData.map((_, idx) => (
@@ -148,113 +141,79 @@ export default function AdminStatisticsPage() {
           </div>
         </div>
 
-        {/* Stacked Bar Chart - 50% width */}
-        <div style={{ 
-          width: '50%',
-          background: '#fff', 
-          borderRadius: 8, 
-          padding: '1.5rem', 
-          boxShadow: '0 1px 3px rgba(0,0,0,0.07)',
-          position: 'relative',
+        {/* Bar Chart Card */}
+        <div style={{
+          flex: 1,
+          minWidth: 320,
+          background: '#ffffff',
+          borderRadius: '1rem',
+          padding: '2rem',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
           display: 'flex',
           flexDirection: 'column'
         }}>
-          <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem', color: '#1e40af' }}>
-            Preference Breakdown (Stacked Bar)
+          <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem', color: '#2563eb' }}>
+            Preference Breakdown (Bar Chart)
           </h2>
-
-          {/* Bar Chart Legend - Top Right */}
-          <div style={{ 
-            position: 'absolute', 
-            top: '3.5rem', 
-            right: '1rem', 
-            zIndex: 10,
-            background: 'rgba(255,255,255,0.95)',
-            padding: '0.75rem',
-            borderRadius: '6px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            border: '1px solid #e5e7eb',
-            fontSize: '0.875rem'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <div style={{ 
-                width: '12px', 
-                height: '12px', 
-                backgroundColor: '#1e40af', 
-                marginRight: '0.5rem',
-                borderRadius: '2px'
-              }}></div>
-              <span style={{ color: '#374151', fontWeight: 500 }}>1st Choice</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <div style={{ 
-                width: '12px', 
-                height: '12px', 
-                backgroundColor: '#fbbf24', 
-                marginRight: '0.5rem',
-                borderRadius: '2px'
-              }}></div>
-              <span style={{ color: '#374151', fontWeight: 500 }}>2nd Choice</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <div style={{ 
-                width: '12px', 
-                height: '12px', 
-                backgroundColor: '#10b981', 
-                marginRight: '0.5rem',
-                borderRadius: '2px'
-              }}></div>
-              <span style={{ color: '#374151', fontWeight: 500 }}>3rd Choice</span>
-            </div>
-          </div>
-
-          <div style={{ flex: 1 }}>
+          <div style={{ width: '100%', height: 260 }}>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart 
-                data={barData} 
-                margin={{ top: 20, right: 30, left: 20, bottom: 80 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis 
-                  dataKey="name" 
-                  interval={0} 
-                  angle={-45} 
-                  textAnchor="end" 
-                  height={80}
-                  fontSize={11}
-                />
-                <YAxis allowDecimals={false} />
+              <BarChart data={barData} margin={{ top: 10, right: 10, left: 0, bottom: 60 }} barGap={8}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="name" angle={-25} textAnchor="end" height={70} fontSize={12} tickLine={false} />
+                <YAxis allowDecimals={false} tickLine={false} />
                 <RechartsTooltip />
-                <Bar dataKey="1st Choice" stackId="a" fill="#1e40af" barSize={20} />
-                <Bar dataKey="2nd Choice" stackId="a" fill="#fbbf24" barSize={20} />
-                <Bar dataKey="3rd Choice" stackId="a" fill="#10b981" barSize={20} />
+                <Bar dataKey="1st Choice" fill="#2563eb" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="2nd Choice" fill="#facc15" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="3rd Choice" fill="#34d399" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
+          </div>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: '1rem',
+            marginTop: '1rem',
+            fontSize: '0.8rem',
+            fontWeight: 500
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <div style={{ width: 12, height: 12, background: '#2563eb', borderRadius: 4 }}></div>1st
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <div style={{ width: 12, height: 12, background: '#facc15', borderRadius: 4 }}></div>2nd
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <div style={{ width: 12, height: 12, background: '#34d399', borderRadius: 4 }}></div>3rd
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Percentage Table */}
-      <div style={{ background: '#fff', borderRadius: 8, padding: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.07)' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem', color: '#1e40af' }}>
-          Percentage of Total Preferences
-        </h2>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      {/* Summary Table */}
+      <div style={{
+        background: '#ffffff',
+        borderRadius: '1rem',
+        padding: '2rem',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+        overflowX: 'auto'
+      }}>
+        <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem', color: '#2563eb' }}>Percentage of Total Preferences</h2>
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '500px' }}>
           <thead>
-            <tr style={{ background: '#f1f5f9' }}>
-              <th style={{ textAlign: 'left', padding: '0.5rem' }}>Course</th>
-              <th style={{ textAlign: 'right', padding: '0.5rem' }}>Total Selections</th>
-              <th style={{ textAlign: 'right', padding: '0.5rem' }}>Percentage</th>
+            <tr style={{ background: '#f9fafb' }}>
+              <th style={{ textAlign: 'left', padding: '0.75rem 1rem' }}>Course</th>
+              <th style={{ textAlign: 'right', padding: '0.75rem 1rem' }}>Total Selections</th>
+              <th style={{ textAlign: 'right', padding: '0.75rem 1rem' }}>Percentage</th>
             </tr>
           </thead>
           <tbody>
             {data.map((course, idx) => (
               <tr key={course.course_id} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                <td style={{ padding: '0.5rem', color: COLORS[idx % COLORS.length], fontWeight: 600 }}>
+                <td style={{ padding: '0.75rem 1rem', color: COLORS[idx % COLORS.length], fontWeight: 600 }}>
                   {course.course_name}
                 </td>
-                <td style={{ padding: '0.5rem', textAlign: 'right' }}>{course.total}</td>
-                <td style={{ padding: '0.5rem', textAlign: 'right' }}>
+                <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>{course.total}</td>
+                <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
                   {totalSelections === 0 ? '0.0%' : `${((course.total / totalSelections) * 100).toFixed(1)}%`}
                 </td>
               </tr>
