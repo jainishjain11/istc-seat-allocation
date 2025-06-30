@@ -1,15 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
 import pool from '@/lib/db';
-import { logActivity } from '@/lib/activityLogger'; // Import activity logger
+import { logActivity } from '@/lib/activityLogger';
 
 export async function POST(request: NextRequest) {
   const connection = await pool.getConnection();
   
   try {
+    // Step 1: Check if registrations are locked
+    const [settings]: any = await connection.query(
+      'SELECT registrations_locked FROM system_settings WHERE id = 1'
+    );
+    
+    if (settings.length > 0 && settings[0].registrations_locked) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Registrations are currently locked by administrator. Please contact support.' 
+        },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
     console.log('📨 Full request body received:', body);
     
-    // Extract userId from request body
+    // Step 2: Extract userId from request body
     const userId = body.userId;
     
     if (!userId) {
@@ -22,7 +37,7 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Processing registration for userId:', userId);
 
-    // Validate all required fields
+    // Step 3: Validate all required fields
     const requiredFields = [
       'full_name', 'father_name', 'phone', 'aadhar_id',
       'tenth_percentage', 'board_name', 'state', 'category', 'exam_rank'
@@ -45,7 +60,7 @@ export async function POST(request: NextRequest) {
 
     await connection.beginTransaction();
 
-    // Check if already registered
+    // Step 4: Check if already registered
     const [existing]: any = await connection.query(
       'SELECT id FROM candidates WHERE user_id = ?',
       [userId]
@@ -59,7 +74,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Insert candidate data
+    // Step 5: Insert candidate data
     const [candidateResult]: any = await connection.query(`
       INSERT INTO candidates (
         user_id, full_name, father_name, phone, aadhar_id,
@@ -81,7 +96,7 @@ export async function POST(request: NextRequest) {
     const candidateId = candidateResult.insertId;
     console.log('✅ Candidate inserted with ID:', candidateId);
 
-    // Insert course preferences
+    // Step 6: Insert course preferences
     const preferences = [
       body.preference_1,
       body.preference_2,
@@ -97,7 +112,7 @@ export async function POST(request: NextRequest) {
 
     await connection.commit();
     
-    // Log registration activity
+    // Step 7: Log registration activity
     await logActivity(
       userId, 
       'registration_completed', 

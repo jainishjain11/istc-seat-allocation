@@ -2,9 +2,7 @@
 import { useState, useEffect } from 'react';
 
 const CARD_COLORS = ['#1e40af', '#10b981', '#fbbf24', '#ef4444'];
-
 const CARD_ICONS = ['👥', '✅', '📋', '⏳'];
-
 const CARD_TITLES = [
   'Total Candidates',
   'Allocated Seats',
@@ -14,41 +12,101 @@ const CARD_TITLES = [
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState([0, 0, 0, 0]);
+  const [registrationsLocked, setRegistrationsLocked] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Fetch dashboard stats
-    const fetchStats = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch('/api/admin/dashboard-stats');
-        const data = await res.json();
-        if (data.success) {
+        // Fetch dashboard stats
+        const statsRes = await fetch('/api/admin/dashboard-stats');
+        const statsData = await statsRes.json();
+        if (statsData.success) {
           setStats([
-            data.stats.totalCandidates,
-            data.stats.allocatedSeats,
-            data.stats.availableSeats,
-            data.stats.pendingApplications
+            statsData.stats.totalCandidates,
+            statsData.stats.allocatedSeats,
+            statsData.stats.availableSeats,
+            statsData.stats.pendingApplications
           ]);
         }
+
+        // Fetch lock status
+        const lockRes = await fetch('/api/admin/lock-status');
+        const lockData = await lockRes.json();
+        if (lockData.success) {
+          setRegistrationsLocked(lockData.registrations_locked);
+        }
       } catch (error) {
-        // fallback: do nothing
+        console.error('Failed to fetch data:', error);
       }
     };
-    fetchStats();
+    fetchData();
   }, []);
+
+  const toggleRegistrationsLock = async () => {
+    setLoading(true);
+    try {
+      const newLockStatus = !registrationsLocked;
+      const res = await fetch('/api/admin/lock-registrations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lock: newLockStatus })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setRegistrationsLocked(newLockStatus);
+      }
+    } catch (error) {
+      console.error('Failed to toggle lock:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div style={{ maxWidth: 1200, margin: '0 auto', padding: '2rem' }}>
-      <h1 style={{
-        fontSize: '2.2rem',
-        fontWeight: 700,
-        color: '#1e293b',
-        marginBottom: '0.25rem'
-      }}>
-        Admin Dashboard
-      </h1>
-      <p style={{ color: '#64748b', marginBottom: '2rem', fontSize: '1.15rem' }}>
-        Welcome to ISTC Seat Allocation Management System
-      </p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <div>
+          <h1 style={{ fontSize: '2.2rem', fontWeight: 700, color: '#1e293b', marginBottom: '0.25rem' }}>
+            Admin Dashboard
+          </h1>
+          <p style={{ color: '#64748b', fontSize: '1.15rem' }}>
+            Welcome to ISTC Seat Allocation Management System
+          </p>
+        </div>
+        
+        <button
+          onClick={toggleRegistrationsLock}
+          disabled={loading}
+          style={{
+            background: registrationsLocked ? '#ef4444' : '#10b981',
+            color: 'white',
+            fontWeight: 600,
+            fontSize: '1.1rem',
+            borderRadius: '0.5rem',
+            padding: '0.8rem 1.5rem',
+            border: 'none',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            transition: 'all 0.2s',
+            opacity: loading ? 0.7 : 1
+          }}
+        >
+          {registrationsLocked ? (
+            <>
+              <span>🔓</span> Unlock Registrations
+            </>
+          ) : (
+            <>
+              <span>🔒</span> Lock Registrations
+            </>
+          )}
+          {loading && <span className="lock-spinner"></span>}
+        </button>
+      </div>
 
       {/* Stats Cards */}
       <div style={{
@@ -127,6 +185,22 @@ export default function AdminDashboard() {
           <a href="/admin/system-settings" className="admin-action-btn" style={actionBtnStyle('#f59e0b')}>System Settings</a>
         </div>
       </div>
+
+      <style jsx>{`
+        .lock-spinner {
+          display: inline-block;
+          width: 1rem;
+          height: 1rem;
+          border: 2px solid rgba(255,255,255,0.3);
+          border-radius: 50%;
+          border-top-color: white;
+          animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }
