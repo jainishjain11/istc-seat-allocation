@@ -1,19 +1,7 @@
 
-ISTC Seat Allocation Management System
-  
-
-  Automating fair, transparent, and efficient seat allocation for ISTC, CSIR
-  
-    Built with a robust stack:
-    &nbsp;
-    &nbsp;
-    &nbsp;
-    &nbsp;
-    
-  
-
-  
+<div align="center"> <img src="https://raw.githubusercontent.com/github/explore/main/topics/institutional/institutional.png" alt="ISTC Logo" width="100" /> <h1 align="center">ISTC Seat Allocation Management System</h1> <p align="center"> <b>Automating fair, transparent, and efficient seat allocation for ISTC, CSIR</b><br /> <sub> Built with a robust stack: <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" alt="Next.js" width="30"/>&nbsp; <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React" width="30"/>&nbsp; <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg" alt="MySQL" width="30"/>&nbsp; <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" alt="TypeScript" width="30"/>&nbsp; <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-plain.svg" alt="TailwindCSS" width="30"/> </sub> </p>
 ![badge](https://img.shields.io/badge/Status-Production-success?](https://img.shields.io/badge/Security-Admin%20IP%20Locking-blue?style=for-the-badgeields.io/badge/License-Apache%202.0-orange?style=for 🎯 Project Overview
+
 
 The **ISTC Seat Allocation Management System** is a state-of-the-art web application for managing admissions and automated seat allocation at ISTC, CSIR.  
 Designed for **efficiency, fairness, and security**, it supports two user profiles:
