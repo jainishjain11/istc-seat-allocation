@@ -35,8 +35,19 @@ export default function LoginPage() {
   return (
     <div className="login-bg">
       <div className="login-container">
-        {/* Left: ISTC Logo fills the panel */}
-        <div className="login-visual" aria-label="ISTC Logo" />
+        {/* Left: ISTC Logo */}
+        <div className="login-visual" aria-label="ISTC Logo">
+          <img
+            src="/images/istc-logo.jpg"
+            alt="ISTC Logo"
+            style={{
+              maxWidth: '90%',
+              maxHeight: '90%',
+              display: 'block',
+              margin: '0 auto',
+            }}
+          />
+        </div>
         {/* Right: Login Form */}
         <div className="login-form-wrap">
           <form className="login-form" onSubmit={handleLogin} autoComplete="off">
@@ -61,7 +72,6 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
                 required
-                // No need to add style here
               />
               <span
                 className="eye-icon"
@@ -79,15 +89,16 @@ export default function LoginPage() {
           </form>
         </div>
       </div>
+      {/* Background and layout styles */}
       <style jsx>{`
         .login-bg {
           min-height: 100vh;
           width: 100vw;
-          background: #f6f8fa;
+          background: url('/images/istc1.jpg') center center / cover no-repeat fixed;
           display: flex;
           align-items: center;
           justify-content: center;
-          overflow: hidden;
+          overflow: auto;
         }
         .login-container {
           display: flex;
@@ -101,7 +112,7 @@ export default function LoginPage() {
           background: #fff;
         }
         .login-visual {
-          background: #fff url('/images/istc-logo.jpg') center center / 80% 80% no-repeat;
+          background: #fff;
           min-width: 180px;
           width: 200px;
           height: 320px;
@@ -116,7 +127,7 @@ export default function LoginPage() {
           align-items: center;
           justify-content: center;
           width: 100%;
-          min-height: 320px; /* Ensure vertical centering */
+          min-height: 320px;
         }
         .login-form {
           width: 100%;
@@ -133,28 +144,24 @@ export default function LoginPage() {
           text-align: center;
         }
         .login-field {
-  margin-bottom: 1.1rem;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  margin-right: 8px; /* Shift the entire field slightly to the right */
-}
-
-.login-field input[type='email'],
-.login-field input[type='password'],
-.login-field input[type='text'] {
-  width: 100%;
-  padding: 14px 18px;
-  font-size: 1rem;
-  border: none;
-  border-radius: 999px;
-  background: #e3edfa;
-  color: #222;
-  outline: none;
-  box-shadow: 0 2px 8px rgba(16, 38, 70, 0.03);
-  margin-right: 8px; /* Optional: tweak input position slightly to match parent */
-}
-
+          margin-bottom: 1.1rem;
+          display: flex;
+          flex-direction: column;
+          position: relative;
+        }
+        .login-field input[type='email'],
+        .login-field input[type='password'],
+        .login-field input[type='text'] {
+          width: 100%;
+          padding: 14px 18px;
+          font-size: 1rem;
+          border: none;
+          border-radius: 999px;
+          background: #e3edfa;
+          color: #222;
+          outline: none;
+          box-shadow: 0 2px 8px rgba(16, 38, 70, 0.03);
+        }
         .login-field input:focus {
           box-shadow: 0 0 0 2px #2563eb33;
         }

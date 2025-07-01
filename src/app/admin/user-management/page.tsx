@@ -213,11 +213,11 @@ export default function UserManagementPage() {
     <div style={containerStyle}>
       <h1 style={titleStyle}>User Management</h1>
       <p style={subtitleStyle}>
-        Manage candidate accounts and bulk upload users
+        Manage candidate accounts and upload users
       </p>
 
       <div style={cardStyle}>
-        <h2 style={sectionTitleStyle}>Bulk User Upload</h2>
+        <h2 style={sectionTitleStyle}>User Upload</h2>
         
         <div style={uploadAreaStyle}>
           <input

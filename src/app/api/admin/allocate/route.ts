@@ -1,23 +1,43 @@
 import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
 
+/**
+ * Represents a course with seat allocation details
+ */
 interface Course {
   id: number;
   total_seats: number;
-  general: number;
-  sc: number;
-  st: number;
-  obc: number;
-  ews: number;
-  available: number;
+  general: number;      // General category seats
+  sc: number;           // Scheduled Caste seats
+  st: number;           // Scheduled Tribe seats
+  obc: number;          // Other Backward Classes seats
+  ews: number;          // Economically Weaker Section seats
+  available: number;    // Total available seats
 }
 
+/**
+ * Represents a candidate with allocation details
+ */
 interface Candidate {
   id: number;
-  exam_rank: number;
-  category: string;
-  preferences: number[];
-  current_allocation: number | null;
+  exam_rank: number;    // Candidate's rank (lower is better)
+  category: string;     // GEN, SC, ST, OBC, or EWS
+  preferences: number[]; // Ordered list of preferred course IDs
+  current_allocation: number | null; // Currently allocated course ID
+}
+
+/**
+ * Maps candidate categories to course seat properties
+ */
+function getCategorySeatKey(category: string): keyof Course {
+  const map: Record<string, keyof Course> = {
+    'GEN': 'general',
+    'SC': 'sc',
+    'ST': 'st',
+    'OBC': 'obc',
+    'EWS': 'ews'
+  };
+  return map[category] || 'general';
 }
 
 export async function POST() {
@@ -26,7 +46,9 @@ export async function POST() {
     console.log('🚀 Starting seat allocation process');
     await connection.beginTransaction();
 
-    // Phase 1: Initialize Data
+    // ==============================
+    // PHASE 1: INITIALIZATION
+    // ==============================
     console.log('🔍 Fetching category rules...');
     const [categoryRules]: any = await connection.query('SELECT * FROM category_rules LIMIT 1');
     
@@ -52,12 +74,14 @@ export async function POST() {
     const [coursesData]: any = await connection.query(`SELECT * FROM courses`);
     console.log(`📊 Found ${candidatesData.length} candidates and ${coursesData.length} courses`);
 
-    // Phase 2: Calculate seats based on reservation rules
+    // ==============================
+    // PHASE 2: SEAT CALCULATION
+    // ==============================
     const courses: Record<number, Course> = {};
+    
     coursesData.forEach((c: any) => {
       const total = c.total_seats;
       
-      // Calculate seats based on reservation percentages
       const sc = Math.floor(total * (sc_percentage / 100));
       const st = Math.floor(total * (st_percentage / 100));
       const obc = Math.floor(total * (obc_percentage / 100));
@@ -81,14 +105,15 @@ export async function POST() {
         `General: ${general}`);
     });
 
-    // Prepare candidates
     const candidates: Candidate[] = candidatesData.map((c: any) => ({
       ...c,
       preferences: c.preferences.split(',').map(Number),
       current_allocation: null
     }));
 
-    // Phase 3: Main Allocation Logic
+    // ==============================
+    // PHASE 3: MAIN ALLOCATION LOGIC
+    // ==============================
     const allocations = new Map<number, number>();
     let changed: boolean;
     let iteration = 0;
@@ -98,14 +123,12 @@ export async function POST() {
       changed = false;
       console.log(`\n🔄 Starting allocation iteration ${iteration}`);
       
-      const candidateQueue = [...candidates].sort((a, b) => a.exam_rank - b.exam_rank);
+      // Sort candidates by rank (merit order)
+      const candidateQueue = [...candidates]
+        .filter(c => !allocations.has(c.id))
+        .sort((a, b) => a.exam_rank - b.exam_rank);
 
       for (const candidate of candidateQueue) {
-        if (allocations.has(candidate.id)) {
-          console.log(`⏩ Candidate ${candidate.id} already allocated, skipping`);
-          continue;
-        }
-
         console.log(`\n👤 Processing Candidate ${candidate.id} (Rank: ${candidate.exam_rank}, Category: ${candidate.category})`);
         console.log(`   Preferences: ${candidate.preferences.join(', ')}`);
 
@@ -117,28 +140,27 @@ export async function POST() {
           }
 
           console.log(`   🏫 Checking Course ${preference} - Available: ${course.available}`);
+          
           if (course.available <= 0) {
             console.log(`   ❌ Course ${preference} has no available seats`);
             continue;
           }
 
-          const category = candidate.category.toLowerCase() as keyof Course;
-          console.log(`   🔍 Checking ${category} seats: ${course[category]}`);
+          const categoryKey = getCategorySeatKey(candidate.category);
+          console.log(`   🔍 Checking ${categoryKey} seats: ${course[categoryKey]}`);
 
-          if (!(category in course)) {
-            console.log(`   ❌ Invalid category '${category}' for candidate ${candidate.id}`);
-            continue;
-          }
-
-          if (course[category] > 0) {
-            console.log(`   ✅ Allocating reserved ${category} seat in Course ${preference}`);
-            course[category]--;
+          // FIRST: Try to allocate in candidate's reserved category (if not GEN)
+          if (candidate.category !== 'GEN' && course[categoryKey] > 0) {
+            console.log(`   ✅ Allocating reserved ${categoryKey} seat in Course ${preference}`);
+            course[categoryKey]--;
             course.available--;
             allocations.set(candidate.id, preference);
             changed = true;
-            console.log(`   ➖ Remaining ${category} seats: ${course[category]}`);
+            console.log(`   ➖ Remaining ${categoryKey} seats: ${course[categoryKey]}`);
             break;
-          } else if (course.general > 0) {
+          }
+          // SECOND: Try to allocate in general category (for all candidates)
+          else if (course.general > 0) {
             console.log(`   ✅ Allocating general seat in Course ${preference}`);
             course.general--;
             course.available--;
@@ -146,18 +168,19 @@ export async function POST() {
             changed = true;
             console.log(`   ➖ Remaining general seats: ${course.general}`);
             break;
-          } else {
-            console.log(`   ❌ No seats available in Course ${preference}`);
+          }
+          else {
+            console.log(`   ❌ No seats available in Course ${preference} for candidate`);
           }
         }
       }
 
-      // Phase 4: Convert unused reserved seats to general
-      console.log('\n🔄 Converting unused reserved seats to general');
+      // AFTER processing all candidates, convert unused reserved seats to general
+      console.log('\n🔄 Converting unused reserved seats to general for next iteration');
       for (const course of Object.values(courses) as Course[]) {
         const reservedSeats = course.sc + course.st + course.obc + course.ews;
         if (reservedSeats > 0) {
-          console.log(`   Course ${course.id}: Converting ${reservedSeats} reserved seats to general`);
+          console.log(`   Course ${course.id}: Converting ${reservedSeats} unused reserved seats to general`);
           course.general += reservedSeats;
           course.sc = 0;
           course.st = 0;
@@ -168,7 +191,9 @@ export async function POST() {
 
     } while (changed);
 
-    // Phase 5: Update Database
+    // ==============================
+    // PHASE 4: UPDATE DATABASE
+    // ==============================
     console.log('\n💾 Updating database with allocation results');
     await connection.query('DELETE FROM seat_allocations');
     
@@ -224,3 +249,4 @@ export async function POST() {
     connection.release();
   }
 }
+ 

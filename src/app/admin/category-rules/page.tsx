@@ -18,10 +18,10 @@ export default function CategoryRulesPage() {
         const data = await res.json();
         if (data.success && data.rules) {
           setRules({
-            sc: data.rules.sc || 0,
-            st: data.rules.st || 0,
-            obc: data.rules.obc || 0,
-            ews: data.rules.ews || 0
+            sc: Number(data.rules.sc) || 0,
+            st: Number(data.rules.st) || 0,
+            obc: Number(data.rules.obc) || 0,
+            ews: Number(data.rules.ews) || 0
           });
         }
       } catch (error) {
@@ -35,17 +35,19 @@ export default function CategoryRulesPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setRules(prev => ({ ...prev, [name]: parseInt(value) || 0 }));
+    setRules(prev => ({
+      ...prev,
+      [name]: value === '' ? 0 : parseFloat(value)
+    }));
   };
 
   const saveRules = async () => {
     try {
       setSaveStatus('Saving...');
-      
       // Calculate general percentage automatically
       const reservedTotal = rules.sc + rules.st + rules.obc + rules.ews;
       const generalPercentage = 100 - reservedTotal;
-      
+
       const completeRules = {
         general: generalPercentage,
         sc: rules.sc,
@@ -53,13 +55,13 @@ export default function CategoryRulesPage() {
         obc: rules.obc,
         ews: rules.ews
       };
-      
+
       const res = await fetch('/api/admin/category-rules', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(completeRules)
       });
-      
+
       const data = await res.json();
       if (data.success) {
         setSaveStatus('Rules saved successfully!');
@@ -75,7 +77,7 @@ export default function CategoryRulesPage() {
   const reservedTotal = rules.sc + rules.st + rules.obc + rules.ews;
   const generalPercentage = 100 - reservedTotal;
 
-  // Style objects
+  // Style objects (unchanged)
   const containerStyle = {
     maxWidth: '1200px',
     margin: '0 auto',
@@ -125,10 +127,6 @@ export default function CategoryRulesPage() {
     fontWeight: 500,
     marginBottom: '0.5rem',
     color: '#334155'
-  };
-
-  const inputGroupStyle = {
-    marginBottom: '2rem' // Added spacing between input groups
   };
 
   const saveButtonStyle = {
@@ -188,7 +186,7 @@ export default function CategoryRulesPage() {
         {/* General Category Info */}
         <div style={generalInfoStyle}>
           <div style={{ fontSize: '1.1rem', fontWeight: 600, color: '#0369a1' }}>
-            General Category: {generalPercentage}% (Calculated Automatically)
+            General Category: {isNaN(generalPercentage) ? 0 : generalPercentage}% (Calculated Automatically)
           </div>
           <div style={{ fontSize: '0.9rem', color: '#0369a1', marginTop: '0.5rem' }}>
             General seats = 100% - (Reserved category percentages)
@@ -196,81 +194,64 @@ export default function CategoryRulesPage() {
         </div>
         
         <div
-  style={{
-    display: 'grid',
-    gridTemplateColumns: 'repeat(4, 1fr)',
-    gap: '2rem', // Adds space between boxes
-    marginBottom: '2rem',
-    width: '100%',
-  }}
->
-  <div>
-    <label style={labelStyle}>SC (%)</label>
-    <input
-      type="number"
-      name="sc"
-      value={rules.sc}
-      onChange={handleChange}
-      min="0"
-      max="50"
-      style={{
-        ...inputStyle,
-        width: '100%',
-        boxSizing: 'border-box',
-      }}
-    />
-  </div>
-  <div>
-    <label style={labelStyle}>ST (%)</label>
-    <input
-      type="number"
-      name="st"
-      value={rules.st}
-      onChange={handleChange}
-      min="0"
-      max="50"
-      style={{
-        ...inputStyle,
-        width: '100%',
-        boxSizing: 'border-box',
-      }}
-    />
-  </div>
-  <div>
-    <label style={labelStyle}>OBC (%)</label>
-    <input
-      type="number"
-      name="obc"
-      value={rules.obc}
-      onChange={handleChange}
-      min="0"
-      max="50"
-      style={{
-        ...inputStyle,
-        width: '100%',
-        boxSizing: 'border-box',
-      }}
-    />
-  </div>
-  <div>
-    <label style={labelStyle}>EWS (%)</label>
-    <input
-      type="number"
-      name="ews"
-      value={rules.ews}
-      onChange={handleChange}
-      min="0"
-      max="50"
-      style={{
-        ...inputStyle,
-        width: '100%',
-        boxSizing: 'border-box',
-      }}
-    />
-  </div>
-</div>
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gap: '2rem',
+            marginBottom: '2rem',
+            width: '100%',
+          }}
+        >
+          <div>
+            <label style={labelStyle}>SC (%)</label>
+            <input
+              type="number"
+              name="sc"
+              value={rules.sc}
+              onChange={handleChange}
+              min="0"
+              max="50"
+              style={inputStyle}
+            />
+          </div>
+          <div>
+            <label style={labelStyle}>ST (%)</label>
+            <input
+              type="number"
+              name="st"
+              value={rules.st}
+              onChange={handleChange}
+              min="0"
+              max="50"
+              style={inputStyle}
+            />
+          </div>
+          <div>
+            <label style={labelStyle}>OBC (%)</label>
+            <input
+              type="number"
+              name="obc"
+              value={rules.obc}
+              onChange={handleChange}
+              min="0"
+              max="50"
+              style={inputStyle}
+            />
+          </div>
+          <div>
+            <label style={labelStyle}>EWS (%)</label>
+            <input
+              type="number"
+              name="ews"
+              value={rules.ews}
+              onChange={handleChange}
+              min="0"
+              max="50"
+              style={inputStyle}
+            />
+          </div>
+        </div>
 
-        
         {/* Warning for over 100% */}
         {reservedTotal > 100 && (
           <div style={{ 

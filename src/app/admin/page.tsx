@@ -134,9 +134,10 @@ export default function AdminDashboard() {
             </div>
             <div>
               <div style={{
-                fontSize: '2rem',
+                fontSize: idx === 3 ? '1.3rem' : '2rem', // Smaller font for date/time card
                 fontWeight: 700,
-                color: CARD_COLORS[idx]
+                color: CARD_COLORS[idx],
+                lineHeight: idx === 3 ? '1.2' : 'normal' // Better line spacing for date/time
               }}>
                 {idx === 3 && stats[3]
                   ? new Date(stats[3]).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
@@ -145,7 +146,7 @@ export default function AdminDashboard() {
               <div style={{
                 color: '#334155',
                 fontWeight: 500,
-                fontSize: '1.1rem'
+                fontSize: idx === 3 ? '0.9rem' : '1.1rem' // Smaller subtitle for date/time card
               }}>
                 {title}
               </div>
