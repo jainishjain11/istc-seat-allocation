@@ -17,7 +17,7 @@ export default function CandidateRegistration() {
     tenth_percentage: '',
     board_name: '',
     state: '',
-    category: 'General',
+    category: 'GEN', // Default to General
     exam_rank: '',
     preference_1: '',
     preference_2: '',
@@ -221,7 +221,7 @@ export default function CandidateRegistration() {
               required
               className={styles.select}
             >
-              <option value="General">General</option>
+              <option value="GEN">General</option>
               <option value="OBC">OBC</option>
               <option value="SC">SC</option>
               <option value="ST">ST</option>

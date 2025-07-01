@@ -5,7 +5,7 @@ export async function POST(req: Request) {
   const { password } = await req.json();
 
   try {
-    // Fetch admin password from database (plain text)
+    // Fetch admin password from database
     const [admin]: any = await pool.query(
       'SELECT password FROM users WHERE is_admin = 1 LIMIT 1'
     );
@@ -44,17 +44,24 @@ export async function POST(req: Request) {
           ews_seats = 0
       `);
 
-      // Delete all candidates
+      // Delete all candidates and reset auto-increment
       await connection.query('DELETE FROM candidates');
+      await connection.query('ALTER TABLE candidates AUTO_INCREMENT = 1');
 
-      // Delete all seat allocations
+      // Delete all seat allocations and reset auto-increment
       await connection.query('DELETE FROM seat_allocations');
+      await connection.query('ALTER TABLE seat_allocations AUTO_INCREMENT = 1');
+
+      // Delete all course preferences and reset auto-increment
+      await connection.query('DELETE FROM course_preferences');
+      await connection.query('ALTER TABLE course_preferences AUTO_INCREMENT = 1');
 
       // Unpublish results
       await connection.query('UPDATE system_settings SET results_published = 0');
 
-      // Delete non-admin users
+      // Delete non-admin users and reset auto-increment
       await connection.query('DELETE FROM users WHERE is_admin = 0');
+      await connection.query('ALTER TABLE users AUTO_INCREMENT = 1');
 
       await connection.commit();
 

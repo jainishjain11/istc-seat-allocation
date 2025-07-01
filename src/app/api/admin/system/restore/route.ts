@@ -25,129 +25,199 @@ export async function POST(req: Request) {
       // Helper functions for date conversion
       const toMySQLDate = (isoString: string | null) => {
         if (!isoString) return null;
-        return isoString.split('T')[0]; // Extract YYYY-MM-DD
+        return isoString.split('T')[0]; // YYYY-MM-DD
       };
 
       const toMySQLDateTime = (isoString: string | null) => {
         if (!isoString) return null;
-        // Convert to MySQL format: YYYY-MM-DD HH:MM:SS
         return new Date(isoString).toISOString().slice(0, 19).replace('T', ' ');
       };
 
-      // Clear existing data
+      console.log('🔄 Starting system restore...');
+
+      // Disable foreign key checks temporarily
+      await connection.query('SET FOREIGN_KEY_CHECKS = 0');
+
+      // Clear existing data (preserve admin users)
       await connection.query('DELETE FROM seat_allocations');
+      await connection.query('DELETE FROM course_preferences');
       await connection.query('DELETE FROM candidates');
       await connection.query('DELETE FROM courses');
       await connection.query('DELETE FROM users WHERE is_admin = 0');
       await connection.query('DELETE FROM system_settings WHERE id > 1');
 
-      // Restore users
+      // Reset auto-increment counters
+      await connection.query('ALTER TABLE seat_allocations AUTO_INCREMENT = 1');
+      await connection.query('ALTER TABLE course_preferences AUTO_INCREMENT = 1');
+      await connection.query('ALTER TABLE candidates AUTO_INCREMENT = 1');
+      await connection.query('ALTER TABLE courses AUTO_INCREMENT = 1');
+      await connection.query('ALTER TABLE users AUTO_INCREMENT = 1');
+
+      // Re-enable foreign key checks
+      await connection.query('SET FOREIGN_KEY_CHECKS = 1');
+
+      // ========== RESTORE USERS (Non-admin only) ==========
       if (backup.users && backup.users.length > 0) {
-        const userValues = backup.users.map((u: any) => [
-          u.id, 
-          u.email, 
-          u.password, 
-          toMySQLDate(u.dob),  // Convert DATE
-          u.is_admin, 
-          u.is_qualified, 
-          toMySQLDateTime(u.created_at)  // Convert DATETIME
-        ]);
+        const nonAdminUsers = backup.users.filter((u: any) => !u.is_admin);
         
-        await connection.query(
-          'INSERT INTO users (id, email, password, dob, is_admin, is_qualified, created_at) VALUES ?',
-          [userValues]
-        );
+        if (nonAdminUsers.length > 0) {
+          const userValues = nonAdminUsers.map((u: any) => [
+            u.id,
+            u.email,
+            u.password,
+            toMySQLDate(u.dob),
+            u.is_admin,
+            u.is_qualified,
+            toMySQLDateTime(u.created_at)
+          ]);
+          
+          await connection.query(
+            `INSERT INTO users 
+             (id, email, password, dob, is_admin, is_qualified, created_at) 
+             VALUES ?`,
+            [userValues]
+          );
+          console.log(`✅ Restored ${userValues.length} users`);
+        }
       }
 
-      // Restore candidates
-      if (backup.candidates && backup.candidates.length > 0) {
-        const candidateValues = backup.candidates.map((c: any) => [
-          c.id, 
-          c.user_id, 
-          c.full_name, 
-          c.exam_rank, 
-          c.category, 
-          c.aadhar_id, 
-          c.tenth_percentage, 
-          c.application_status,
-          toMySQLDateTime(c.created_at)  // Convert if exists
-        ]);
-        
-        await connection.query(
-          `INSERT INTO candidates 
-           (id, user_id, full_name, exam_rank, category, aadhar_id, tenth_percentage, application_status, created_at) 
-           VALUES ?`,
-          [candidateValues]
-        );
-      }
-
-      // Restore courses
+      // ========== RESTORE COURSES ==========
       if (backup.courses && backup.courses.length > 0) {
         const courseValues = backup.courses.map((c: any) => [
-          c.id, 
-          c.course_name, 
-          c.total_seats, 
-          c.available_seats, 
-          c.general_seats, 
-          c.sc_seats, 
-          c.st_seats, 
-          c.obc_seats, 
+          c.id,
+          c.course_name,
+          c.course_code,
+          c.total_seats,
+          c.available_seats,
+          toMySQLDateTime(c.created_at),
+          c.general_seats,
+          c.sc_seats,
+          c.st_seats,
+          c.obc_seats,
           c.ews_seats
         ]);
         
         await connection.query(
-          'INSERT INTO courses (id, course_name, total_seats, available_seats, general_seats, sc_seats, st_seats, obc_seats, ews_seats) VALUES ?',
+          `INSERT INTO courses 
+           (id, course_name, course_code, total_seats, available_seats, created_at, general_seats, sc_seats, st_seats, obc_seats, ews_seats) 
+           VALUES ?`,
           [courseValues]
         );
+        console.log(`✅ Restored ${courseValues.length} courses`);
       }
 
-      // Restore seat allocations
+      // ========== RESTORE CANDIDATES ==========
+      if (backup.candidates && backup.candidates.length > 0) {
+        const candidateValues = backup.candidates.map((c: any) => [
+          c.id,
+          c.user_id,
+          c.full_name,
+          c.father_name,
+          c.phone,
+          c.aadhar_id,
+          c.tenth_percentage,
+          c.board_name,
+          c.state,
+          c.category,
+          c.exam_rank,
+          c.application_status,
+          toMySQLDateTime(c.created_at)
+        ]);
+        
+        await connection.query(
+          `INSERT INTO candidates 
+           (id, user_id, full_name, father_name, phone, aadhar_id, tenth_percentage, board_name, state, category, exam_rank, application_status, created_at) 
+           VALUES ?`,
+          [candidateValues]
+        );
+        console.log(`✅ Restored ${candidateValues.length} candidates`);
+      }
+
+      // ========== RESTORE COURSE PREFERENCES ==========
+      if (backup.coursePreferences && backup.coursePreferences.length > 0) {
+        const preferenceValues = backup.coursePreferences.map((p: any) => [
+          p.id,
+          p.candidate_id,
+          p.course_id,
+          p.preference_order,
+          toMySQLDateTime(p.created_at)
+        ]);
+        
+        await connection.query(
+          `INSERT INTO course_preferences 
+           (id, candidate_id, course_id, preference_order, created_at) 
+           VALUES ?`,
+          [preferenceValues]
+        );
+        console.log(`✅ Restored ${preferenceValues.length} course preferences`);
+      }
+
+      // ========== RESTORE SEAT ALLOCATIONS ==========
       if (backup.seatAllocations && backup.seatAllocations.length > 0) {
         const allocationValues = backup.seatAllocations.map((s: any) => [
-          s.id, 
-          s.candidate_id, 
-          s.allocated_course_id, 
-          toMySQLDateTime(s.allocated_at)  // Convert DATETIME
+          s.id,
+          s.candidate_id,
+          s.allocated_course_id,
+          s.allocation_round,
+          toMySQLDateTime(s.allocated_at)
         ]);
         
         await connection.query(
-          'INSERT INTO seat_allocations (id, candidate_id, allocated_course_id, allocated_at) VALUES ?',
+          `INSERT INTO seat_allocations 
+           (id, candidate_id, allocated_course_id, allocation_round, allocated_at) 
+           VALUES ?`,
           [allocationValues]
         );
+        console.log(`✅ Restored ${allocationValues.length} seat allocations`);
       }
 
-      // Restore system settings
+      // ========== RESTORE SYSTEM SETTINGS ==========
       if (backup.systemSettings && backup.systemSettings.length > 0) {
-        const settingValues = backup.systemSettings.map((s: any) => [
-          s.id,
-          s.results_published,
-          s.registrations_locked,
-          toMySQLDateTime(s.created_at),  // Convert
-          toMySQLDateTime(s.updated_at)   // Convert
-        ]);
+        const filteredSettings = backup.systemSettings.filter((s: any) => s.id > 1);
         
-        await connection.query(
-          `INSERT INTO system_settings 
-           (id, results_published, registrations_locked, created_at, updated_at) 
-           VALUES ?`,
-          [settingValues]
-        );
+        if (filteredSettings.length > 0) {
+          const settingValues = filteredSettings.map((s: any) => [
+            s.id,
+            toMySQLDateTime(s.created_at),
+            s.results_published,
+            toMySQLDateTime(s.updated_at),
+            s.registrations_locked
+          ]);
+          
+          await connection.query(
+            `INSERT INTO system_settings 
+             (id, created_at, results_published, updated_at, registrations_locked) 
+             VALUES ?`,
+            [settingValues]
+          );
+          console.log(`✅ Restored ${settingValues.length} system settings`);
+        }
       }
 
       await connection.commit();
+      console.log('🎉 System restore completed successfully!');
 
       return NextResponse.json({
         success: true,
-        message: 'System restored successfully'
+        message: 'System restored successfully',
+        restored: {
+          users: backup.users?.filter((u: any) => !u.is_admin)?.length || 0,
+          candidates: backup.candidates?.length || 0,
+          courses: backup.courses?.length || 0,
+          allocations: backup.seatAllocations?.length || 0,
+          preferences: backup.coursePreferences?.length || 0
+        }
       });
+
     } catch (error: any) {
       await connection.rollback();
+      console.error('❌ Restore failed:', error);
       throw error;
     } finally {
       connection.release();
     }
   } catch (error: any) {
-    console.error('Restore error:', error);
+    console.error('💥 Restore error:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Restore failed' },
       { status: 500 }
