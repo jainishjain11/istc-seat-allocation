@@ -38,7 +38,30 @@ It features a robust admin portal, candidate activity logs, backup & restore, an
 | TypeScript    |             |          | Docker Ready  |
 
 
-<p align="center"> <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" /> <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" /> <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" /> <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" /> <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white" /> <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" /> <img src="https://img.shields.io/badge/jsPDF-FFB300?style=for-the-badge&logo=javascript&logoColor=black" /> </p>
+<div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+  <div style="width: 60px; height: 60px; border-radius: 50%; background-color: #000000; display: flex; align-items: center; justify-content: center;">
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-line.svg" alt="Next.js" style="width: 30px;">
+  </div>
+  <div style="width: 60px; height: 60px; border-radius: 50%; background-color: #20232A; display: flex; align-items: center; justify-content: center;">
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React" style="width: 30px;">
+  </div>
+  <div style="width: 60px; height: 60px; border-radius: 50%; background-color: #339933; display: flex; align-items: center; justify-content: center;">
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" alt="Node.js" style="width: 30px;">
+  </div>
+  <div style="width: 60px; height: 60px; border-radius: 50%; background-color: #007ACC; display: flex; align-items: center; justify-content: center;">
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" alt="TypeScript" style="width: 30px;">
+  </div>
+  <div style="width: 60px; height: 60px; border-radius: 50%; background-color: #4479A1; display: flex; align-items: center; justify-content: center;">
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg" alt="MySQL" style="width: 30px;">
+  </div>
+  <div style="width: 60px; height: 60px; border-radius: 50%; background-color: #38B2AC; display: flex; align-items: center; justify-content: center;">
+    <img src="https://www.vectorlogo.zone/logos/tailwindcss/tailwindcss-icon.svg" alt="Tailwind CSS" style="width: 30px;">
+  </div>
+  <div style="width: 60px; height: 60px; border-radius: 50%; background-color: #FFB300; display: flex; align-items: center; justify-content: center;">
+    <img src="https://raw.githubusercontent.com/parallax/jsPDF/master/docs/images/logo.png" alt="jsPDF" style="width: 30px;">
+  </div>
+</div>
+
 
 ---
 
