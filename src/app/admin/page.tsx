@@ -7,18 +7,17 @@ const CARD_TITLES = [
   'Total Candidates',
   'Allocated Seats',
   'Available Seats',
-  'Pending Applications'
+  'System Last Reset Time'
 ];
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState([0, 0, 0, 0]);
+  const [stats, setStats] = useState([0, 0, 0, '']);
   const [registrationsLocked, setRegistrationsLocked] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch dashboard stats
         const statsRes = await fetch('/api/admin/dashboard-stats');
         const statsData = await statsRes.json();
         if (statsData.success) {
@@ -26,11 +25,10 @@ export default function AdminDashboard() {
             statsData.stats.totalCandidates,
             statsData.stats.allocatedSeats,
             statsData.stats.availableSeats,
-            statsData.stats.pendingApplications
+            statsData.stats.lastResetTime || ''
           ]);
         }
 
-        // Fetch lock status
         const lockRes = await fetch('/api/admin/lock-status');
         const lockData = await lockRes.json();
         if (lockData.success) {
@@ -95,15 +93,7 @@ export default function AdminDashboard() {
             opacity: loading ? 0.7 : 1
           }}
         >
-          {registrationsLocked ? (
-            <>
-              <span>🔓</span> Unlock Registrations
-            </>
-          ) : (
-            <>
-              <span>🔒</span> Lock Registrations
-            </>
-          )}
+          {registrationsLocked ? 'Unlock Registrations' : 'Lock Registrations'}
           {loading && <span className="lock-spinner"></span>}
         </button>
       </div>
@@ -148,7 +138,9 @@ export default function AdminDashboard() {
                 fontWeight: 700,
                 color: CARD_COLORS[idx]
               }}>
-                {stats[idx]}
+                {idx === 3 && stats[3]
+                  ? new Date(stats[3]).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
+                  : stats[idx]}
               </div>
               <div style={{
                 color: '#334155',
