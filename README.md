@@ -3,7 +3,7 @@
 ![Node.js](https://img.shields.io/badge/Node.js-%3E=18-blue.svg)
 ![MySQL](https://img.shields.io/badge/Database-MySQL-orange.svg)
 ![Production Ready](https://img.shields.io/badge/Status-Production-brightgreen.svg)
-![PRs Welcome](https://img.shields.io/badge/PRs-welcome-blue.svg)
+
 
 ---
 
@@ -36,6 +36,9 @@ It features a robust admin portal, candidate activity logs, backup & restore, an
 | Next.js 14    | Node.js 18+ | MySQL 8  | Tailwind CSS  |
 | React 18      | API Routes  |          | jsPDF         |
 | TypeScript    |             |          | Docker Ready  |
+
+
+<p align="center"> <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" /> <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" /> <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" /> <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" /> <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white" /> <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" /> <img src="https://img.shields.io/badge/jsPDF-FFB300?style=for-the-badge&logo=javascript&logoColor=black" /> </p>
 
 ---
 
@@ -135,5 +138,5 @@ _ISTC Seat Allocation Management System is actively maintained and ready for rea
 
 ---
 
-> Made with ❤️ for ISTC by Jainish Jain, Paramveer Singh
-jainishjain.1105@gmail.com, param15.veer.singh@gmail.com
+> Made with ❤️ for ISTC,CSIO by Jainish Jain, Paramveer Singh
+> jainishjain.1105@gmail.com, param15.veer.singh@gmail.com
