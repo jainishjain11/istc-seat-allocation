@@ -6,6 +6,7 @@ interface Course {
   course_name: string;
   total_seats: number;
   available_seats: number;
+  // The following fields are kept for type safety but not displayed:
   general_seats: number;
   sc_seats: number;
   st_seats: number;
@@ -136,11 +137,6 @@ export default function SeatMatrix() {
             <th style={{ ...thStyle, textAlign: 'left', minWidth: '250px' }}>Course</th>
             <th style={thStyle}>Total Seats</th>
             <th style={thStyle}>Available</th>
-            <th style={thStyle}>General</th>
-            <th style={thStyle}>SC</th>
-            <th style={thStyle}>ST</th>
-            <th style={thStyle}>OBC</th>
-            <th style={thStyle}>EWS</th>
           </tr>
         </thead>
         <tbody>
@@ -173,16 +169,11 @@ export default function SeatMatrix() {
                     {course.available_seats}
                   </span>
                 </td>
-                <td style={tdStyle}>{course.general_seats}</td>
-                <td style={tdStyle}>{course.sc_seats}</td>
-                <td style={tdStyle}>{course.st_seats}</td>
-                <td style={tdStyle}>{course.obc_seats}</td>
-                <td style={tdStyle}>{course.ews_seats}</td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan={8} style={{ 
+              <td colSpan={3} style={{ 
                 ...tdStyle, 
                 textAlign: 'center', 
                 padding: '2rem',
