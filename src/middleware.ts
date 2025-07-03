@@ -1,0 +1,35 @@
+
+/*
+
+
+import { NextRequest, NextResponse } from 'next/server';
+
+// Get allowed IPs from environment variable
+const ADMIN_IPS = (process.env.ADMIN_IP_WHITELIST || '').split(',').map(ip => ip.trim());
+
+export function middleware(request: NextRequest) {
+  // Try to get the IP from x-forwarded-for or x-real-ip headers
+  let ip =
+    request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
+    request.headers.get('x-real-ip')?.trim() ||
+    '';
+
+  // Only apply to /admin and /api/admin routes
+  const isAdminRoute =
+    request.nextUrl.pathname.startsWith('/admin') ||
+    request.nextUrl.pathname.startsWith('/api/admin');
+
+  if (isAdminRoute && !ADMIN_IPS.includes(ip)) {
+    return new NextResponse('Access Denied: Your IP is not allowed.', { status: 403 });
+  }
+
+  return NextResponse.next();
+}
+
+// Only run middleware on admin pages and admin API routes
+export const config = {
+  matcher: ['/admin/:path*', '/api/admin/:path*'],
+};
+
+
+*/
