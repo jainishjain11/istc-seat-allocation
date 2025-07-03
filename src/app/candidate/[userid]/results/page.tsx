@@ -1,4 +1,3 @@
-// src/app/candidate/[userId]/results/page.tsx
 'use client';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
@@ -7,7 +6,7 @@ import styles from './results-page.module.css';
 type AllocationResult = {
   course_name: string;
   course_code: string;
-  allocated_at: string;
+  verification_date?: string | null;
 } | null;
 
 export default function CandidateResults() {
@@ -60,20 +59,18 @@ export default function CandidateResults() {
     if (userId) fetchCandidateName();
   }, [userId]);
 
-  // Handle download allocation letter
+  // Handle download allocation letter (unchanged)
   const handleDownloadLetter = async () => {
     try {
       const response = await fetch(`/api/candidate/${userId}/allocation-letter`);
-      
       if (!response.ok) {
         throw new Error('Failed to download allocation letter');
       }
-      
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `ISTC-Allocation-Letter-${candidateName.replace(/\s+/g, '-')}.docx`;
+      a.download = `ISTC-Allocation-Letter-${candidateName.replace(/\s+/g, '-')}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -124,13 +121,15 @@ export default function CandidateResults() {
                 <span className={styles.detailValue}>{result.course_code}</span>
               </div>
               <div className={styles.detailItem}>
-                <span className={styles.detailLabel}>Allocated on:</span>
+                <span className={styles.detailLabel}>Document Verification Date:</span>
                 <span className={styles.detailValue}>
-                  {new Date(result.allocated_at).toLocaleDateString('en-IN', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric'
-                  })}
+                  {result.verification_date
+                    ? new Date(result.verification_date).toLocaleDateString('en-IN', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                      })
+                    : 'To be announced'}
                 </span>
               </div>
             </div>

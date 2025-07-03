@@ -5,9 +5,9 @@ export async function GET(request: Request, { params }: { params: { userId: stri
   const userId = params.userId;
 
   try {
-    // Check if results are published
+    // Check if results are published and get doc verification date
     const [settings]: any = await pool.query(
-      'SELECT results_published FROM system_settings'
+      'SELECT results_published, doc_verification_date FROM system_settings'
     );
     
     if (!settings.length || !settings[0].results_published) {
@@ -50,10 +50,18 @@ export async function GET(request: Request, { params }: { params: { userId: stri
       [candidates[0].id]
     );
 
+    // Add verification date to result
+    const result = allocations[0]
+      ? {
+          ...allocations[0],
+          verification_date: settings[0].doc_verification_date || null
+        }
+      : null;
+
     return NextResponse.json({
       success: true,
       published: true,
-      result: allocations[0] || null
+      result
     });
 
   } catch (error: any) {

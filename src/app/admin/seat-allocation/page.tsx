@@ -10,6 +10,7 @@ export default function SeatAllocationPage() {
   const [publicationStatus, setPublicationStatus] = useState('');
   const [isExporting, setIsExporting] = useState(false);
   const [exportStatus, setExportStatus] = useState('');
+  const [docVerificationDate, setDocVerificationDate] = useState('');
 
   const runAllocation = async () => {
     setIsAllocating(true);
@@ -36,7 +37,7 @@ export default function SeatAllocationPage() {
       const res = await fetch('/api/admin/publish', { 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ publish: true })
+        body: JSON.stringify({ publish: true, docVerificationDate })
       });
       const data = await res.json();
       if (data.success) {
@@ -56,11 +57,9 @@ export default function SeatAllocationPage() {
     setExportStatus('');
     try {
       const res = await fetch('/api/admin/export/candidates');
-      
       if (!res.ok) {
         throw new Error(`Failed to fetch export data: ${res.statusText}`);
       }
-      
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -70,7 +69,6 @@ export default function SeatAllocationPage() {
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
-      
       setExportStatus('Candidates exported successfully!');
       setTimeout(() => setExportStatus(''), 3000);
     } catch (error: any) {
@@ -160,7 +158,7 @@ export default function SeatAllocationPage() {
         <div style={cardStyle}>
           <h2 style={sectionTitleStyle}>Run Allocation</h2>
           <p style={{ color: '#64748b', marginBottom: '1.5rem', lineHeight: '1.6' }}>
-            Execute the seat allocation algorithm to assign seats to candidates according to their preferences.
+            Execute the seat allocation algorithm to assign seats to candidates according to their preferences and reserved categories seat.
           </p>
           <button
             onClick={runAllocation}
@@ -186,10 +184,27 @@ export default function SeatAllocationPage() {
           <p style={{ color: '#64748b', marginBottom: '1.5rem', lineHeight: '1.6' }}>
             Make allocation results visible to candidates after allocation is complete.
           </p>
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ fontWeight: 500, color: '#334155', marginRight: 8 }}>
+              Document Verification Date:
+            </label>
+            <input
+              type="date"
+              value={docVerificationDate}
+              onChange={e => setDocVerificationDate(e.target.value)}
+              required
+              style={{
+                padding: '0.5rem 1rem',
+                border: '1px solid #d1d5db',
+                borderRadius: '0.5rem',
+                fontSize: '1.1rem'
+              }}
+            />
+          </div>
           <button
             onClick={publishResults}
-            disabled={isPublishing}
-            style={actionButtonStyle('#10b981', isPublishing)}
+            disabled={isPublishing || !docVerificationDate}
+            style={actionButtonStyle('#10b981', isPublishing || !docVerificationDate)}
           >
             {isPublishing ? (
               <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -253,7 +268,6 @@ export default function SeatAllocationPage() {
           border-top-color: white;
           animation: spin 1s ease-in-out infinite;
         }
-        
         @keyframes spin {
           to { transform: rotate(360deg); }
         }
