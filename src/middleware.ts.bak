@@ -1,7 +1,4 @@
 
-/*
-
-
 import { NextRequest, NextResponse } from 'next/server';
 
 // Get allowed IPs from environment variable
@@ -30,6 +27,3 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: ['/admin/:path*', '/api/admin/:path*'],
 };
-
-
-*/

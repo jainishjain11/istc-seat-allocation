@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
 
-export async function GET(request: Request, { params }: { params: { userId: string } }) {
-  const userId = params.userId;
+export async function GET(request: Request, context: { params: Promise<{ userId: string }> }) {
+  const { userId } = await context.params;
 
   try {
     // Check if results are published and get doc verification date

@@ -5,11 +5,8 @@ import { jsPDF } from 'jspdf';
 import fs from 'fs';
 import path from 'path';
 
-export async function GET(
-  request: Request,
-  { params }: { params: { userId: string } }
-) {
-  const userId = params.userId;
+export async function GET(request: Request, context: { params: Promise<{ userId: string }> }) {
+  const { userId } = await context.params;
 
   try {
     // 1. Get candidate by userId
@@ -55,13 +52,13 @@ export async function GET(
     const [settings]: any = await pool.query(
       'SELECT doc_verification_date FROM system_settings'
     );
-    let verificationDateStr: string = 'To be announced';
+
+    // --- Format Document Verification Date ---
+    let verificationDateStr = 'To be announced';
     if (settings[0]?.doc_verification_date) {
-      const rawDate = String(settings[0].doc_verification_date).trim();
-      // Accept YYYY-MM-DD or YYYY-MM-DD HH:MM:SS
-      const dateMatch = rawDate.match(/^(\d{4}-\d{2}-\d{2})/);
-      if (dateMatch && !isNaN(Date.parse(dateMatch[1]))) {
-        verificationDateStr = new Date(dateMatch[1]).toLocaleDateString('en-IN', {
+      const docDate = new Date(settings[0].doc_verification_date);
+      if (!isNaN(docDate.getTime())) {
+        verificationDateStr = docDate.toLocaleDateString('en-IN', {
           day: 'numeric',
           month: 'long',
           year: 'numeric'
@@ -69,35 +66,44 @@ export async function GET(
       }
     }
 
-    // 5. Load both logos as base64
-    let csioLogoBase64: string = '';
-    let istcLogoBase64: string = '';
+    // --- Format Allocation Date ---
+    let allocationDateStr = 'To be announced';
+    if (allocation.allocated_at) {
+      const allocDate = new Date(allocation.allocated_at);
+      if (!isNaN(allocDate.getTime())) {
+        allocationDateStr = allocDate.toLocaleDateString('en-IN', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        });
+      }
+    }
+
+    // 6. Load logos
+    let csioLogoBase64 = '';
+    let istcLogoBase64 = '';
     try {
       const csioLogoPath = path.join(process.cwd(), 'public/images/csio-logo.jpg');
       const istcLogoPath = path.join(process.cwd(), 'public/images/istc-logo.jpg');
       csioLogoBase64 = `data:image/jpeg;base64,${fs.readFileSync(csioLogoPath).toString('base64')}`;
       istcLogoBase64 = `data:image/jpeg;base64,${fs.readFileSync(istcLogoPath).toString('base64')}`;
     } catch {
-      csioLogoBase64 = '';
-      istcLogoBase64 = '';
+      // fallback empty logos
     }
 
-    // 6. Prepare values with safe fallbacks
-    const fullName: string = String(candidate.full_name ?? 'Candidate');
-    const phone: string = String(candidate.phone ?? 'N/A');
-    const courseName: string = String(allocation.course_name ?? 'N/A');
-    const courseCode: string = String(allocation.course_code ?? 'N/A');
+    // 7. Prepare values
+    const fullName = String(candidate.full_name ?? 'Candidate');
+    const phone = String(candidate.phone ?? 'N/A');
+    const courseName = String(allocation.course_name ?? 'N/A');
+    const courseCode = String(allocation.course_code ?? 'N/A');
 
-    // 7. Create PDF
+    // 8. Generate PDF
     const doc = new jsPDF();
 
     // --- HEADER ---
-    // Left logo
     if (csioLogoBase64) doc.addImage(csioLogoBase64, 'JPEG', 15, 12, 22, 22);
-    // Right logo
     if (istcLogoBase64) doc.addImage(istcLogoBase64, 'JPEG', 173, 12, 22, 22);
 
-    // Centered header text
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(15);
     doc.text('INDO-SWISS TRAINING CENTRE', 105, 22, { align: 'center' });
@@ -117,14 +123,9 @@ export async function GET(
     doc.setFontSize(10);
     doc.text('Sector 30-C, Chandigarh-160 030', 105, 38, { align: 'center' });
 
-    // --- Date (right-aligned) ---
+    // --- Allocation Date ---
     doc.setFontSize(12);
-    doc.text(
-      `Date: ${verificationDateStr}`,
-      200,
-      48,
-      { align: 'right' }
-    );
+    doc.text(`Date: ${allocationDateStr}`, 200, 48, { align: 'right' });
 
     // --- Main Content ---
     let y = 58;
@@ -132,6 +133,7 @@ export async function GET(
     doc.setFontSize(14);
     doc.text(`To: ${fullName}`, 20, y);
     y += 8;
+
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(12);
     doc.text(`Email: ${email}`, 20, y);
@@ -155,22 +157,14 @@ export async function GET(
       y
     );
     y += 8;
-    doc.text(
-      'Indo-Swiss Training Centre, CSIO, CSIR, Chandigarh:',
-      20,
-      y
-    );
-    
+    doc.text('Indo-Swiss Training Centre, CSIO, CSIR, Chandigarh:', 20, y);
     y += 10;
+
     doc.text(`Course Name: ${courseName}`, 20, y);
     y += 8;
     doc.text(`Course Code: ${courseCode}`, 20, y);
     y += 8;
-    doc.text(
-      `Document Verification Date: ${verificationDateStr}`,
-      20,
-      y
-    );
+    doc.text(`Document Verification Date: ${verificationDateStr}`, 20, y);
     y += 14;
 
     doc.setFont('helvetica', 'bold');
@@ -192,13 +186,11 @@ export async function GET(
     y += 8;
     doc.text('Indo Swiss Training Centre', 20, y);
 
-    // --- FOOTER ---
-    // Draw a line above the footer
+    // --- Footer ---
     doc.setDrawColor(180, 180, 180);
     doc.setLineWidth(0.5);
     doc.line(15, 282, 195, 282);
 
-    // Footer content 
     doc.setFontSize(8.5);
     doc.setTextColor(80, 80, 80);
     doc.text(
@@ -212,7 +204,7 @@ export async function GET(
       292
     );
 
-    // Output PDF as response
+    // Output PDF
     const pdfBuffer = doc.output('arraybuffer');
     return new Response(Buffer.from(pdfBuffer), {
       headers: {
