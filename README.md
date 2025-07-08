@@ -1,9 +1,10 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/nextdotjs.svg" alt="Next.js" width="80" height="80"/>
-  <img src="https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/typescript.svg" alt="TypeScript" width="80" height="80"/>
-  <img src="https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/mysql.svg" alt="MySQL" width="80" height="80"/>
-  <img src="https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/node-dot-js.svg" alt="Node.js" width="80" height="80"/>
-  <img src="https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/react.svg" alt="React" width="80" height="80"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" alt="Next.js" width="70" style="margin: 0 10px;"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" alt="TypeScript" width="70" style="margin: 0 10px;"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg" alt="MySQL" width="70" style="margin: 0 10px;"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" alt="Node.js" width="70" style="margin: 0 10px;"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React" width="70" style="margin: 0 10px;"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" alt="Docker" width="70" style="margin: 0 10px;"/>
 </div>
 
 <h1 align="center">ISTC Seat Allocation Portal</h1>
@@ -13,13 +14,13 @@
 </p>
 
 <p align="center">
-  <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-13+-000?logo=next.js&logoColor=white" alt="Next.js"/></a>
-  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-4+-3178C6?logo=typescript&logoColor=white" alt="TypeScript"/></a>
-  <a href="https://www.mysql.com/"><img src="https://img.shields.io/badge/MySQL-8+-4479A1?logo=mysql&logoColor=white" alt="MySQL"/></a>
-  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node.js-18+-339933?logo=node.js&logoColor=white" alt="Node.js"/></a>
-  <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-18+-61DAFB?logo=react&logoColor=white" alt="React"/></a>
-  <a href="https://github.com/"><img src="https://img.shields.io/github/license/your-repo/istc-seat-allocation?style=flat-square" alt="License"/></a>
-  <a href="https://github.com/"><img src="https://img.shields.io/github/issues/your-repo/istc-seat-allocation?style=flat-square" alt="Issues"/></a>
+  <img src="https://img.shields.io/badge/Next.js-13+-000?logo=next.js&logoColor=white" alt="Next.js"/>
+  <img src="https://img.shields.io/badge/TypeScript-4+-3178C6?logo=typescript&logoColor=white" alt="TypeScript"/>
+  <img src="https://img.shields.io/badge/MySQL-8+-4479A1?logo=mysql&logoColor=white" alt="MySQL"/>
+  <img src="https://img.shields.io/badge/Node.js-18+-339933?logo=node.js&logoColor=white" alt="Node.js"/>
+  <img src="https://img.shields.io/badge/React-18+-61DAFB?logo=react&logoColor=white" alt="React"/>
+  <img src="https://img.shields.io/github/license/your-repo/istc-seat-allocation?style=flat-square" alt="License"/>
+  <img src="https://img.shields.io/github/issues/your-repo/istc-seat-allocation?style=flat-square" alt="Issues"/>
 </p>
 
 ---
@@ -34,14 +35,14 @@ The **ISTC Seat Allocation Portal** is a modern, full-stack web application for 
 
 | Technology   | Logo | Description |
 |--------------|------|-------------|
-| Next.js      | <img src="https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/nextdotjs.svg" width="24"/> | React-based full-stack framework for SSR, routing, and API integration |
-| TypeScript   | <img src="https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/typescript.svg" width="24"/> | Strongly-typed JavaScript for scalable, maintainable code |
-| Node.js      | <img src="https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/node-dot-js.svg" width="24"/> | Backend runtime for server-side logic and APIs |
-| MySQL        | <img src="https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/mysql.svg" width="24"/> | Relational database for secure data storage |
-| React        | <img src="https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/react.svg" width="24"/> | UI library for dynamic, component-driven frontend |
-| PDFKit       | <img src="https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/pdf.svg" width="24"/> | PDF generation for allocation letters |
-| CSS Modules  | <img src="https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/css3.svg" width="24"/> | Modular, maintainable CSS styling |
-| Docker       | <img src="https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/docker.svg" width="24"/> | (Optional) Containerized deployment |
+| Next.js      | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" width="24"/> | React-based full-stack framework for SSR, routing, and API integration |
+| TypeScript   | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" width="24"/> | Strongly-typed JavaScript for scalable, maintainable code |
+| Node.js      | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" width="24"/> | Backend runtime for server-side logic and APIs |
+| MySQL        | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg" width="24"/> | Relational database for secure data storage |
+| React        | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" width="24"/> | UI library for dynamic, component-driven frontend |
+| PDFKit       | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/file-type-pdf/file-type-pdf-original.svg" width="24"/> | PDF generation for allocation letters |
+| CSS Modules  | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" width="24"/> | Modular, maintainable CSS styling |
+| Docker       | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" width="24"/> | (Optional) Containerized deployment |
 
 ---
 
@@ -116,16 +117,11 @@ We welcome contributions! Please open issues or submit PRs for new features, bug
 
 ---
 
-## 📃 License
-
-This project is licensed under the MIT License.
-
----
-
 <div align="center">
-<img src="https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/nextdotjs.svg" width="32"/>
-<img src="https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/typescript.svg" width="32"/>
-<img src="https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/mysql.svg" width="32"/>
-<img src="https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/node-dot-js.svg" width="32"/>
-<img src="https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/react.svg" width="32"/>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" width="32"/>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" width="32"/>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg" width="32"/>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" width="32"/>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" width="32"/>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" width="32"/>
 </div>
