@@ -19,8 +19,6 @@
   <img src="https://img.shields.io/badge/MySQL-8+-4479A1?logo=mysql&logoColor=white" alt="MySQL"/>
   <img src="https://img.shields.io/badge/Node.js-18+-339933?logo=node.js&logoColor=white" alt="Node.js"/>
   <img src="https://img.shields.io/badge/React-18+-61DAFB?logo=react&logoColor=white" alt="React"/>
-  <img src="https://img.shields.io/github/license/your-repo/istc-seat-allocation?style=flat-square" alt="License"/>
-  <img src="https://img.shields.io/github/issues/your-repo/istc-seat-allocation?style=flat-square" alt="Issues"/>
 </p>
 
 ---
@@ -98,6 +96,7 @@ npm run dev
 ```
 
 6. **Access the App**
+- Login page : `http://localhost:3000/`
 - Admin Dashboard: `http://localhost:3000/admin`
 - Candidate Portal: `http://localhost:3000/candidate/[userId]/results`
 
@@ -111,11 +110,6 @@ npm run dev
 
 ---
 
-## 🤝 Contributing
-
-We welcome contributions! Please open issues or submit PRs for new features, bug fixes, or improvements.
-
----
 
 <div align="center">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" width="32"/>
