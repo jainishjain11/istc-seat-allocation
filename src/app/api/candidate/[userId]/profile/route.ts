@@ -3,8 +3,10 @@ import pool from '@/lib/db';
 
 export async function GET(
   request: Request,
-  { params }: { params: { userId: string } }
+  context: { params: Promise<{ userId: string }> }
 ) {
+  const { userId } = await context.params;
+
   try {
     const [candidates]: any = await pool.query(`
       SELECT 
@@ -21,7 +23,7 @@ export async function GET(
       LEFT JOIN courses crs ON cp.course_id = crs.id
       WHERE c.user_id = ?
       GROUP BY c.id
-    `, [params.userId]);
+    `, [userId]);
 
     if (candidates.length === 0) {
       return NextResponse.json(
@@ -31,11 +33,23 @@ export async function GET(
     }
 
     const candidate = candidates[0];
+    // Parse preferences from JSON string to array if needed
+    let preferences: any[] = [];
+    try {
+      preferences = typeof candidate.preferences === 'string'
+        ? JSON.parse(candidate.preferences)
+        : candidate.preferences;
+    } catch {
+      preferences = [];
+    }
+
     return NextResponse.json({
       success: true,
       profile: {
         ...candidate,
-        preferences: candidate.preferences.filter((p: any) => p.course_id)
+        preferences: Array.isArray(preferences)
+          ? preferences.filter((p: any) => p && p.course_id)
+          : []
       }
     });
 
