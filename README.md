@@ -107,8 +107,11 @@ npm run dev
 <div align="center">
 <img src="public/images/LoginPage.png" alt="Login Page" width="340" style="margin: 0 10px 24px 10px; border-radius: 10px; box-shadow: 0 4px 18px #0001;"/>
 <img src="public/images/Admin_Dashboard.png" alt="Admin Dashboard" width="340" style="margin: 0 10px 24px 10px; border-radius: 10px; box-shadow: 0 4px 18px #0001;"/>
-<img src="public/images/Preference_Stats.png" alt="Preference Stats" width="340" style="margin: 0 10px 24px 10px; border-radius: 10px; box-shadow: 0 4px 18px #0001;"
+<img src="public/images/Preference_Stats.png" alt="Preference Stats" width="340" style="margin: 0 10px 24px 10px; border-radius: 10px; box-shadow: 0 4px 18px #0001;"/>
+<img src="public/images/Candidate_Dashboard.png" alt="Preference Stats" width="340" style="margin: 0 10px 24px 10px; border-radius: 10px; box-shadow: 0 4px 18px #0001;"/>
 </div>
+
+
 
 ---
 
