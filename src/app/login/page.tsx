@@ -134,7 +134,7 @@ export default function LoginPage() {
           max-width: 260px;
           display: flex;
           flex-direction: column;
-          align-items: stretch;
+          align-items: center;
         }
         .login-title {
           color: #fff;
@@ -182,19 +182,20 @@ export default function LoginPage() {
           color: #2563eb;
         }
         .login-btn {
-          width: 100%;
-          padding: 12px 0;
-          background: #fff;
-          color: #2563eb;
-          font-weight: 700;
-          font-size: 1.08rem;
-          border: none;
-          border-radius: 999px;
-          cursor: pointer;
-          margin-top: 0.5rem;
-          box-shadow: 0 2px 8px rgba(16, 38, 70, 0.07);
-          transition: background 0.2s, box-shadow 0.2s, color 0.2s;
-        }
+        width: auto;             /* <-- change from 100% */
+        min-width: 120px;
+        padding: 12px 36px;      /* wider padding for a button look */
+        background: #fff;
+        color: #2563eb;
+        font-weight: 700;
+        font-size: 1.08rem;
+        border: none;
+        border-radius: 999px;
+        cursor: pointer;
+        margin-top: 0.5rem;
+        box-shadow: 0 2px 8px rgba(16, 38, 70, 0.07);
+        transition: background 0.2s, box-shadow 0.2s, color 0.2s;
+    }
         .login-btn:disabled {
           background: #e3edfa;
           color: #93c5fd;
