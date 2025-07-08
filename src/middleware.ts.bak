@@ -1,3 +1,6 @@
+// To use this file
+//Name this file as middleware.ts in the root and then include your IP for admin in the .env.local file
+
 
 import { NextRequest, NextResponse } from 'next/server';
 
