@@ -40,7 +40,7 @@ The **ISTC Seat Allocation Portal** is a modern, full-stack web application for 
 | React        | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" width="24"/> | UI library for dynamic, component-driven frontend |
 | PDFKit       | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/file-type-pdf/file-type-pdf-original.svg" width="24"/> | PDF generation for allocation letters |
 | CSS Modules  | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" width="24"/> | Modular, maintainable CSS styling |
-| Docker       | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" width="24"/> | (Optional) Containerized deployment |
+| Docker       | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" width="24"/> | Containerized deployment |
 
 ---
 
