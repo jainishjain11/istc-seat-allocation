@@ -33,16 +33,19 @@ It supports admins and candidates with real-time seat matrix management, automat
 
 ## 🛠️ Tech Stack
 
+## 🛠️ Tech Stack
+
 | Technology   | Logo                                                                 | Description                                                             |
 |--------------|----------------------------------------------------------------------|-------------------------------------------------------------------------|
-| Next.js      | ![Next.js](https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg =24x24) | React-based full-stack framework for SSR, routing, and API integration |
-| TypeScript   | ![TypeScript](https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg =24x24) | Strongly-typed JavaScript for scalability                              |
-| Node.js      | ![Node.js](https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg =24x24) | Backend runtime environment                                             |
-| MySQL        | ![MySQL](https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg =24x24) | Relational database for structured candidate and seat data              |
-| React        | ![React](https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg =24x24) | UI library for interactive and reusable components                     |
-| PDFKit       | 📄 | Server-side generation of branded PDF allocation letters         |
-| CSS Modules  | ![CSS](https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg =24x24) | Modular CSS for scoped, clean styling                                   |
-| Docker       | ![Docker](https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg =24x24) | Containerized deployment and consistent environments                    |
+| **Next.js**  | ![Next.js](https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg) | React-based full-stack framework for SSR, routing, and API integration |
+| **TypeScript** | ![TypeScript](https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg) | Strongly-typed JavaScript for scalable, maintainable code              |
+| **Node.js**  | ![Node.js](https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg) | Backend runtime for server-side logic and APIs                         |
+| **MySQL**    | ![MySQL](https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg) | Relational database for secure data storage                            |
+| **React**    | ![React](https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg) | UI library for dynamic, component-driven frontend                      |
+| **PDFKit**   | 📄 | PDF generation for allocation letters                                  |
+| **CSS Modules** | ![CSS](https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg) | Modular, maintainable CSS styling                                      |
+| **Docker**   | ![Docker](https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg) | Containerized deployment                                               |
+
 
 ---
 
@@ -56,22 +59,6 @@ It supports admins and candidates with real-time seat matrix management, automat
 - 🔒 **Role-Based Access** – Secure APIs and user-level restrictions.
 - ⬇️ **CSV Import/Export** – Admin-friendly data portability.
 - 💡 **Modern UI/UX** – Clean, fast, and intuitive interface.
-
----
-
-## 📦 Folder Structure
-src/
-│
-├── app/ # App entry (Next.js App Router)
-├── admin/ # Admin dashboard routes and views
-├── candidate/ # Candidate results & PDF routes
-├── api/ # All backend API endpoints
-├── components/ # Shared reusable components
-├── lib/ # Utility functions and DB connectors
-├── public/images/ # Logos and UI assets
-├── styles/ # CSS Modules
-└── migrations/ # SQL scripts (optional for setup)
-
 
 ---
 
@@ -114,4 +101,5 @@ Candidate Results: http://localhost:3000/candidate/[userId]/results
 
 <div align="center"> Built using Next.js, TypeScript, and MySQL </div>
 
+This is a repo made for making the ISTC Official Website.
 
